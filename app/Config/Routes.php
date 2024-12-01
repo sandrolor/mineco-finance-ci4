@@ -29,3 +29,12 @@ $routes->group('contas', ['filter' => 'auth'], function ($routes) {
     $routes->post('update/(:num)', 'Contas::update/$1'); // Atualizar conta
     $routes->get('delete/(:num)', 'Contas::delete/$1');  // Excluir conta
 });
+
+$routes->group('grupocategorias', ['filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'GrupoCategorias::index');
+    $routes->get('create', 'GrupoCategorias::create');
+    $routes->post('store', 'GrupoCategorias::store');
+    $routes->get('edit/(:num)', 'GrupoCategorias::edit/$1');
+    $routes->post('update/(:num)', 'GrupoCategorias::update/$1');
+    $routes->get('delete/(:num)', 'GrupoCategorias::delete/$1');
+});
