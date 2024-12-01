@@ -38,3 +38,12 @@ $routes->group('grupocategorias', ['filter' => 'auth'], function ($routes) {
     $routes->post('update/(:num)', 'GrupoCategorias::update/$1');
     $routes->get('delete/(:num)', 'GrupoCategorias::delete/$1');
 });
+
+$routes->group('categorias', ['filter' => 'auth'], function ($routes) {
+    $routes->get('', 'Categorias::index');              // Listagem de categorias
+    $routes->get('create', 'Categorias::create');       // Formulário de criação
+    $routes->post('store', 'Categorias::store');        // Salvar nova categoria
+    $routes->get('edit/(:num)', 'Categorias::edit/$1'); // Formulário de edição
+    $routes->post('update/(:num)', 'Categorias::update/$1'); // Atualizar categoria
+    $routes->get('delete/(:num)', 'Categorias::delete/$1');  // Excluir categoria
+});
