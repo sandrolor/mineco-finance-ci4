@@ -65,3 +65,8 @@ $routes->group('transferencias', ['filter' => 'auth'], function ($routes) {
     $routes->post('update/(:num)', 'Transferencias::update/$1'); // Atualizar transferência
     $routes->get('delete/(:num)', 'Transferencias::delete/$1'); // Excluir transferência
 });
+
+$routes->group('relatorios', ['filter' => 'auth'], function ($routes) {
+    $routes->get('saldo-contas', 'Relatorios::saldoContas');
+    $routes->get('resultado-categorias', 'Relatorios::resultadoCategorias');
+});
