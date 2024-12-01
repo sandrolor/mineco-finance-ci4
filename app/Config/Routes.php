@@ -47,3 +47,12 @@ $routes->group('categorias', ['filter' => 'auth'], function ($routes) {
     $routes->post('update/(:num)', 'Categorias::update/$1'); // Atualizar categoria
     $routes->get('delete/(:num)', 'Categorias::delete/$1');  // Excluir categoria
 });
+
+$routes->group('movimento', ['filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'Movimento::index');
+    $routes->get('create', 'Movimento::create');
+    $routes->post('store', 'Movimento::store');
+    $routes->get('edit/(:num)', 'Movimento::edit/$1');
+    $routes->post('update/(:num)', 'Movimento::update/$1');
+    $routes->get('delete/(:num)', 'Movimento::delete/$1');
+});
