@@ -56,3 +56,12 @@ $routes->group('movimento', ['filter' => 'auth'], function ($routes) {
     $routes->post('update/(:num)', 'Movimento::update/$1');
     $routes->get('delete/(:num)', 'Movimento::delete/$1');
 });
+
+$routes->group('transferencias', ['filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'Transferencias::index'); // Listagem de transferências
+    $routes->get('create', 'Transferencias::create'); // Formulário de nova transferência
+    $routes->post('store', 'Transferencias::store'); // Salvar nova transferência
+    $routes->get('edit/(:num)', 'Transferencias::edit/$1'); // Formulário de edição
+    $routes->post('update/(:num)', 'Transferencias::update/$1'); // Atualizar transferência
+    $routes->get('delete/(:num)', 'Transferencias::delete/$1'); // Excluir transferência
+});
