@@ -41,4 +41,43 @@ class MovimentoModel extends Model
 
         return $builder->get()->getResultArray();
     }
+
+    public function getSaldoContas($startDate = null, $endDate = null)
+    {
+        $builder = $this->db->table('movimento')
+            ->select('contas.nomeconta AS nome_conta, SUM(movimento.valor) AS saldo')
+            ->join('contas', 'contas.id = movimento.conta_id')
+            ->groupBy('movimento.conta_id');
+
+        // Aplicar filtro de data, se fornecido
+        if ($startDate) {
+            $builder->where('movimento.data_mov >=', $startDate);
+        }
+        if ($endDate) {
+            $builder->where('movimento.data_mov <=', $endDate);
+        }
+
+        return $builder->get()->getResultArray();
+    }
+
+    public function getResultadoCategorias($startDate = null, $endDate = null)
+    {
+        $builder = $this->db->table('movimento')
+            ->select('categorias.nomecategoria AS nome_categoria')
+            ->select('SUM(CASE WHEN movimento.valor > 0 THEN movimento.valor ELSE 0 END) AS receitas')
+            ->select('SUM(CASE WHEN movimento.valor < 0 THEN movimento.valor ELSE 0 END) AS despesas')
+            ->select('SUM(movimento.valor) AS saldo')
+            ->join('categorias', 'categorias.id = movimento.categoria_id')
+            ->groupBy('movimento.categoria_id');
+
+        // Aplicar filtro de data, se fornecido
+        if ($startDate) {
+            $builder->where('movimento.data_mov >=', $startDate);
+        }
+        if ($endDate) {
+            $builder->where('movimento.data_mov <=', $endDate);
+        }
+
+        return $builder->get()->getResultArray();
+    }
 }
