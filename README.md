@@ -14,7 +14,7 @@ Este projeto tem como objetivo oferecer uma plataforma para controle financeiro 
    ```
 2. Instale as dependências:
    ```bash
-   composer
+   composer install
    ```
 3. Configure o arquivo `.env` com suas credenciais do MySQL.
   ```bash
