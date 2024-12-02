@@ -22,31 +22,24 @@ class Movimento extends BaseController
     // Listar movimentos com paginação e busca
     public function index()
     {
-        $search = $this->request->getGet('search');
+        $dataInicial = $this->request->getGet('data_inicial') ?? date('Y-m-01');
+        $dataFinal = $this->request->getGet('data_final') ?? date('Y-m-d');
+        $contaId = $this->request->getGet('conta_id');
+        $categoriaId = $this->request->getGet('categoria_id');
 
-        // Obter query personalizada para movimentos
-        $query = $this->movimentoModel->getMovimento($search);
+        $movimentos = $this->movimentoModel->filtrarMovimentos($dataInicial, $dataFinal, $contaId, $categoriaId);
 
-        // Configurar paginação manual
-        $perPage = 10;
-        $currentPage = (int)($this->request->getGet('page') ?? 1);
-        $offset = ($currentPage - 1) * $perPage;
+        $contas = $this->contaModel->findAll();
+        $categorias = $this->categoriaModel->findAll();
 
-        // Aplicar limite e deslocamento
-        $movimentos = $query->orderBy('data_mov', 'DESC')
-            ->limit($perPage, $offset)
-            ->get()
-            ->getResultArray();
-
-        $total = $query->countAllResults(false);
-
-        // Passar dados para a view
         return view('movimento/index', [
             'movimentos' => $movimentos,
-            'total' => $total,
-            'currentPage' => $currentPage,
-            'perPage' => $perPage,
-            'search' => $search
+            'dataInicial' => $dataInicial,
+            'dataFinal' => $dataFinal,
+            'contas' => $contas,
+            'categorias' => $categorias,
+            'contaSelecionada' => $contaId,
+            'categoriaSelecionada' => $categoriaId,
         ]);
     }
 
