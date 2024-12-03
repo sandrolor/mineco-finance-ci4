@@ -46,6 +46,10 @@
     <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
 <?php endif; ?>
 
+<?php if (session()->getFlashdata('error')): ?>
+    <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
+<?php endif; ?>
+
 <div class="row align-items-center mb-4">
     <div class="col-auto">
         <a href="<?= site_url('movimento/create') ?>" class="btn btn-success w-100">Novo Movimento</a>

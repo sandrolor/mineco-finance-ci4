@@ -38,7 +38,7 @@ class MovimentoModel extends Model
         if ($categoriaId) {
             $builder->where('categoria_id', $categoriaId);
         }
-
+        $builder->orderBy('movimento.data_mov', 'ASC');
         return $builder->get()->getResultArray();
     }
 

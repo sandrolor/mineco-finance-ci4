@@ -99,6 +99,21 @@ class Movimento extends BaseController
     // Formulário para editar movimento
     public function edit($id)
     {
+
+        // Obtém o ID da categoria "Transferência"
+        $categoriaTransferencia = $this->categoriaModel->where('nomecategoria', 'Transferência')->first();
+
+        if ($categoriaTransferencia) {
+            $categoriaIdTransferencia = $categoriaTransferencia['id'];
+
+            // Busca o movimento para verificar a categoria
+            $movimento = $this->movimentoModel->find($id);
+
+            if ($movimento['categoria_id'] == $categoriaIdTransferencia) {
+                return redirect()->back()->with('error', 'Transferências não podem ser editadas na rotina de movimentos. Utilize a rotina específica de transferências.');
+            }
+        }
+
         $movimento = $this->movimentoModel->find($id);
 
         if (!$movimento) {
@@ -151,6 +166,21 @@ class Movimento extends BaseController
     // Excluir movimento
     public function delete($id)
     {
+
+        // Obtém o ID da categoria "Transferência"
+        $categoriaTransferencia = $this->categoriaModel->where('nomecategoria', 'Transferência')->first();
+
+        if ($categoriaTransferencia) {
+            $categoriaIdTransferencia = $categoriaTransferencia['id'];
+
+            // Busca o movimento para verificar a categoria
+            $movimento = $this->movimentoModel->find($id);
+
+            if ($movimento['categoria_id'] == $categoriaIdTransferencia) {
+                return redirect()->back()->with('error', 'Transferências não podem ser excluídas na rotina de movimentos. Utilize a rotina específica de transferências.');
+            }
+        }
+
         $this->movimentoModel->delete($id);
         return redirect()->to('/movimento')->with('success', 'Movimento excluído com sucesso.');
     }
