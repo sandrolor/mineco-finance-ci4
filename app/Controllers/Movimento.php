@@ -26,20 +26,31 @@ class Movimento extends BaseController
         $dataFinal = $this->request->getGet('data_final') ?? date('Y-m-d');
         $contaId = $this->request->getGet('conta_id');
         $categoriaId = $this->request->getGet('categoria_id');
+        $contas = $this->movimentoModel->getContas();
+        $categorias = $this->movimentoModel->getCategorias();
 
-        $movimentos = $this->movimentoModel->filtrarMovimentos($dataInicial, $dataFinal, $contaId, $categoriaId);
+        // Saldo anterior
+        $saldoAnterior = $this->movimentoModel->getSaldoAnterior($dataInicial, $contaId, $categoriaId);
 
-        $contas = $this->contaModel->findAll();
-        $categorias = $this->categoriaModel->findAll();
+        // Buscar movimentos filtrados
+        $movimentos = $this->movimentoModel->getMovimentosFiltrados($dataInicial, $dataFinal, $contaId, $categoriaId);
 
+        // Calculando saldo atual
+        $saldoAtual = $saldoAnterior + array_sum(array_column($movimentos, 'valor'));
+
+        // Passar dados para a view
         return view('movimento/index', [
             'movimentos' => $movimentos,
+            // 'contas' => $this->movimentoModel->getContas(),
+            // 'categorias' => $this->movimentoModel->getCategorias(),
             'dataInicial' => $dataInicial,
             'dataFinal' => $dataFinal,
-            'contas' => $contas,
-            'categorias' => $categorias,
+            'contas' => $contas, // Adicionamos esta linha
+            'categorias' => $categorias, // Adicionamos esta linha
             'contaSelecionada' => $contaId,
             'categoriaSelecionada' => $categoriaId,
+            'saldoAnterior' => $saldoAnterior,
+            'saldoAtual' => $saldoAtual
         ]);
     }
 
