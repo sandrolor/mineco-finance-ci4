@@ -33,8 +33,8 @@ class Movimento extends BaseController
         $saldoAnterior = $this->movimentoModel->getSaldoAnterior($dataInicial, $contaId, $categoriaId);
 
         // Buscar movimentos filtrados
-        $movimentos = $this->movimentoModel->getMovimentosFiltrados($dataInicial, $dataFinal, $contaId, $categoriaId);
-
+        $movimentos = $this->movimentoModel->filtrarMovimentos($dataInicial, $dataFinal, $contaId, $categoriaId);
+        // dd($movimentos);
         // Calculando saldo atual
         $saldoAtual = $saldoAnterior + array_sum(array_column($movimentos, 'valor'));
 
