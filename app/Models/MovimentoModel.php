@@ -83,20 +83,36 @@ class MovimentoModel extends Model
 
     public function getSaldoAnterior($dataInicial, $contaId = null, $categoriaId = null)
     {
-        $builder = $this->db->table('movimento');
-        $builder->selectSum('valor', 'saldo_anterior');
-        $builder->where('data_mov <', $dataInicial);
+        // $builder = $this->db->table('movimento');
+        // $builder->selectSum('valor', 'saldo_anterior');
+        // $builder->where('data_mov <', $dataInicial);
 
+        // if ($contaId) {
+        //     $builder->where('conta_id', $contaId);
+        // }
+
+        // if ($categoriaId) {
+        //     $builder->where('categoria_id', $categoriaId);
+        // }
+
+        // $result = $builder->get()->getRowArray();
+        // return $result['saldo_anterior'] ?? 0;
+
+        $builder = $this->db->table('movimento')
+            ->selectSum('valor', 'saldoAnterior');
+
+        if ($dataInicial) {
+            $builder->where('data_mov <', $dataInicial);
+        }
         if ($contaId) {
             $builder->where('conta_id', $contaId);
         }
-
         if ($categoriaId) {
             $builder->where('categoria_id', $categoriaId);
         }
 
         $result = $builder->get()->getRowArray();
-        return $result['saldo_anterior'] ?? 0;
+        return $result['saldoAnterior'] ?? 0;
     }
 
     public function getMovimentosFiltrados($filtros = [])
@@ -187,5 +203,41 @@ class MovimentoModel extends Model
         // Para Receita ou Despesa
         $dados['valor'] = ($dados['tipo'] === 'Despesa') ? -abs($dados['valor']) : abs($dados['valor']);
         return $this->insert($dados);
+    }
+
+    public function getMovimentosComSaldoAcumulado($dataInicial = null, $dataFinal = null, $contaId = null, $categoriaId = null)
+    {
+        $builder = $this->db->table('movimento m')
+            ->select('m.id, m.data_mov, m.historico, m.valor, m.conta_id, c.nomeconta, m.categoria_id, cat.nomecategoria')
+            ->join('contas c', 'c.id = m.conta_id')
+            ->join('categorias cat', 'cat.id = m.categoria_id')
+            ->orderBy('m.data_mov', 'ASC');
+
+        // Aplica filtros
+        if ($dataInicial) {
+            $builder->where('m.data_mov >=', $dataInicial);
+        }
+        if ($dataFinal) {
+            $builder->where('m.data_mov <=', $dataFinal);
+        }
+        if ($contaId) {
+            $builder->where('m.conta_id', $contaId);
+        }
+        if ($categoriaId) {
+            $builder->where('m.categoria_id', $categoriaId);
+        }
+
+        $movimentos = $builder->get()->getResultArray();
+
+        // Calcular saldo acumulado
+        $saldoAnterior = $this->getSaldoAnterior($dataInicial, $contaId, $categoriaId);
+        $saldoAtual = $saldoAnterior;
+
+        foreach ($movimentos as &$movimento) {
+            $saldoAtual += $movimento['valor'];
+            $movimento['saldo_acumulado'] = $saldoAtual; // Adiciona saldo acumulado ao movimento
+        }
+
+        return ['movimentos' => $movimentos, 'saldoAnterior' => $saldoAnterior, 'saldoAtual' => $saldoAtual];
     }
 }

@@ -34,13 +34,17 @@ class Movimento extends BaseController
 
         // Buscar movimentos filtrados
         $movimentos = $this->movimentoModel->filtrarMovimentos($dataInicial, $dataFinal, $contaId, $categoriaId);
-        // dd($movimentos);
+        
         // Calculando saldo atual
         $saldoAtual = $saldoAnterior + array_sum(array_column($movimentos, 'valor'));
 
+        // Saldo acumulado
+        $resultado = $this->movimentoModel->getMovimentosComSaldoAcumulado($dataInicial, $dataFinal, $contaId, $categoriaId);
+        // dd($resultado);
         // Passar dados para a view
         return view('movimento/index', [
-            'movimentos' => $movimentos,
+            'movimentos' => $resultado['movimentos'],
+            // 'movimentos' => $movimentos,
             // 'contas' => $this->movimentoModel->getContas(),
             // 'categorias' => $this->movimentoModel->getCategorias(),
             'dataInicial' => $dataInicial,

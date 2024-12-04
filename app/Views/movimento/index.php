@@ -55,10 +55,11 @@
         <a href="<?= site_url('movimento/create') ?>" class="btn btn-success w-100">Novo Movimento</a>
     </div>
     <div class="col text-center">
-        <strong>Saldo anterior:</strong> R$ <?= number_format($saldoAnterior, 2, ',', '.') ?>
+        <!--<strong>Saldo anterior:</strong> R$ <?= number_format($saldoAnterior, 2, ',', '.') ?>-->
     </div>
     <div class="col text-end">
-        <strong>Saldo atual:</strong> R$ <?= number_format($saldoAtual, 2, ',', '.') ?>
+        <strong>Saldo anterior:</strong> R$ <?= number_format($saldoAnterior, 2, ',', '.') ?>
+        <!--<strong>Saldo atual:</strong> R$ <?= number_format($saldoAtual, 2, ',', '.') ?>-->
     </div>
 </div>
 
@@ -75,16 +76,16 @@
             if ($dataAtual !== $movimento['data_mov']):
                 if ($dataAtual !== ''): ?>
                     <!-- Exibir saldo diário -->
-                    <div class="text-end fw-bold mt-2">
+                    <!-- <div class="text-end fw-bold mt-2">
                         Saldo do dia: R$ <?= number_format($saldoDia, 2, ',', '.') ?>
-                    </div>
+                    </div> -->
                 <?php endif;
                 $dataAtual = $movimento['data_mov'];
                 $saldoDia = 0; // Resetar o saldo do dia
                 ?>
-                <h5 class="bg-light p-2 text-primary">
+                <h8 class="bg-light p-2 text-primary">
                     <?= date('d/m/Y', strtotime($dataAtual)) ?>
-                </h5>
+                </h8>
             <?php endif; ?>
 
             <?php
@@ -96,24 +97,39 @@
             ?>
 
             <!-- Linha do movimento -->
-            <div class="d-flex justify-content-between align-items-center border-bottom py-2">
-                <div>
-                    <div class="fw-bold"><?= esc($movimento['historico']) ?></div>
-                    <div class="text-muted">
-                        <?= esc($movimento['nomeconta']) ?> - <?= esc($movimento['nomecategoria']) ?>
-                        <a href="<?= site_url('movimento/edit/' . $movimento['id']) ?>" class="btn btn-warning btn-sm">Editar</a>
-                        <a href="<?= site_url('movimento/delete/' . $movimento['id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</a>
+            <div>
+                <div class="fw-normal">
+                    <?= esc($movimento['historico']) ?>
+                    <div class="row align-items-center mb-2">
+                        <!-- Categoria -->
+                        <div class="col-md-4 text-muted">
+                            <?= esc($movimento['nomecategoria']) ?>
+                        </div>
+                        <!-- Conta -->
+                        <div class="col-md-4 text-muted">
+                            <?= esc($movimento['nomeconta']) ?>
+                        </div>
+                        <!-- Valor -->
+                        <div class="col-md-1 fw-bold <?= $valorClass ?>">
+                            <?= number_format($movimento['valor'], 2, ',', '.') ?>
+                        </div>
+                        <!-- Saldo -->
+                        <div class="col-md-1 fw-bold text-end">
+                            <?= number_format($movimento['saldo_acumulado'], 2, ',', '.') ?>
+                        </div>
+                        <!-- Editar e Excluir -->
+                        <div class="col-md-2 text-end">
+                            <a href="<?= site_url('movimento/edit/' . $movimento['id']) ?>" class="btn btn-warning btn-sm">Editar</a>
+                            <a href="<?= site_url('movimento/delete/' . $movimento['id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</a>
+                        </div>
                     </div>
-                </div>
-                <div class="fw-bold <?= $valorClass ?>">
-                    <?= number_format($movimento['valor'], 2, ',', '.') ?>
                 </div>
             </div>
         <?php endforeach; ?>
 
         <!-- Saldo final do último dia -->
         <div class="text-end fw-bold mt-2">
-        <strong>Saldo atual:</strong> R$ <?= number_format($saldoAtual, 2, ',', '.') ?>
+            <strong>Saldo atual:</strong> R$ <?= number_format($saldoAtual, 2, ',', '.') ?>
         </div>
     </div>
 <?php else: ?>
