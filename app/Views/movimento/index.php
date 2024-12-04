@@ -83,9 +83,9 @@
                 $dataAtual = $movimento['data_mov'];
                 $saldoDia = 0; // Resetar o saldo do dia
                 ?>
-                <h8 class="bg-light p-2 text-primary">
+                <h6 class="bg-light p-2 text-primary">
                     <?= date('d/m/Y', strtotime($dataAtual)) ?>
-                </h8>
+                </h6>
             <?php endif; ?>
 
             <?php
