@@ -62,8 +62,8 @@ class Movimento extends BaseController
     public function create()
     {
         $data = [
-            'contas' => $this->contaModel->findAll(),
-            'categorias' => $this->categoriaModel->findAll(),
+            'contas' => $this->contaModel->orderBy('nomeconta', 'ASC')->findAll(),
+            'categorias' => $this->categoriaModel->orderBy('nomecategoria', 'ASC')->findAll(),
         ];
 
         return view('movimento/create', $data);
@@ -126,8 +126,8 @@ class Movimento extends BaseController
 
         $data = [
             'movimento' => $movimento,
-            'contas' => $this->contaModel->findAll(),
-            'categorias' => $this->categoriaModel->findAll(),
+            'contas' => $this->contaModel->orderBy('nomeconta', 'ASC')->findAll(),
+            'categorias' => $this->categoriaModel->orderBy('nomecategoria', 'ASC')->findAll(),
         ];
 
         return view('movimento/edit', $data);
