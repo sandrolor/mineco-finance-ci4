@@ -19,6 +19,10 @@ class Transferencias extends BaseController
     // Listagem de transferências
     public function index()
     {
+        // Dados para exibição (ajustar conforme necessário)
+        // $data['transferencias'] = []; // Implementar lógica de listagem se necessário
+        // return view('transferencias/index', $data);
+
         // Obter movimentos de saída (transferências)
         $transferencias = $this->transferenciasModel
             ->select('movimento.id, movimento.data_mov, movimento.historico, movimento.valor, contas_origem.nomeconta as conta_origem, contas_destino.nomeconta as conta_destino')

@@ -5,6 +5,7 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
+
 $routes->get('/', 'Auth::login');
 $routes->get('login', 'Auth::login');
 $routes->post('auth/login', 'Auth::login');
@@ -21,15 +22,6 @@ $routes->group('grupocontas', ['filter' => 'auth'], function ($routes) {
     $routes->get('delete/(:num)', 'GrupoContas::delete/$1');
 });
 
-$routes->group('contas', ['filter' => 'auth'], function ($routes) {
-    $routes->get('', 'Contas::index');              // Listagem de contas
-    $routes->get('create', 'Contas::create');       // Formulário de criação
-    $routes->post('store', 'Contas::store');        // Salvar nova conta
-    $routes->get('edit/(:num)', 'Contas::edit/$1'); // Formulário de edição
-    $routes->post('update/(:num)', 'Contas::update/$1'); // Atualizar conta
-    $routes->get('delete/(:num)', 'Contas::delete/$1');  // Excluir conta
-});
-
 $routes->group('grupocategorias', ['filter' => 'auth'], function ($routes) {
     $routes->get('/', 'GrupoCategorias::index');
     $routes->get('create', 'GrupoCategorias::create');
@@ -37,6 +29,15 @@ $routes->group('grupocategorias', ['filter' => 'auth'], function ($routes) {
     $routes->get('edit/(:num)', 'GrupoCategorias::edit/$1');
     $routes->post('update/(:num)', 'GrupoCategorias::update/$1');
     $routes->get('delete/(:num)', 'GrupoCategorias::delete/$1');
+});
+
+$routes->group('contas', ['filter' => 'auth'], function ($routes) {
+    $routes->get('', 'Contas::index');              // Listagem de contas
+    $routes->get('create', 'Contas::create');       // Formulário de criação
+    $routes->post('store', 'Contas::store');        // Salvar nova conta
+    $routes->get('edit/(:num)', 'Contas::edit/$1'); // Formulário de edição
+    $routes->post('update/(:num)', 'Contas::update/$1'); // Atualizar conta
+    $routes->get('delete/(:num)', 'Contas::delete/$1');  // Excluir conta
 });
 
 $routes->group('categorias', ['filter' => 'auth'], function ($routes) {

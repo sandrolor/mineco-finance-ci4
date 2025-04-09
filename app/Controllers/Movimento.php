@@ -22,48 +22,59 @@ class Movimento extends BaseController
     // Listar movimentos com paginação e busca
     public function index()
     {
-        $dataInicial = $this->request->getGet('data_inicial') ?? date('Y-m-01');
-        $dataFinal = $this->request->getGet('data_final') ?? date('Y-m-d');
-        $contaId = $this->request->getGet('conta_id');
-        $categoriaId = $this->request->getGet('categoria_id');
-        $contas = $this->movimentoModel->getContas();
-        $categorias = $this->movimentoModel->getCategorias();
+        $search = $this->request->getGet('search');
 
-        // Saldo anterior
-        $saldoAnterior = $this->movimentoModel->getSaldoAnterior($dataInicial, $contaId, $categoriaId);
+        // Obter query personalizada para movimentos
+        $query = $this->movimentoModel->getMovimento($search);
 
-        // Buscar movimentos filtrados
-        $movimentos = $this->movimentoModel->filtrarMovimentos($dataInicial, $dataFinal, $contaId, $categoriaId);
-        
-        // Calculando saldo atual
-        $saldoAtual = $saldoAnterior + array_sum(array_column($movimentos, 'valor'));
+        // Configurar paginação manual
+        $perPage = 10;
+        $currentPage = (int)($this->request->getGet('page') ?? 1);
+        $offset = ($currentPage - 1) * $perPage;
 
-        // Saldo acumulado
-        $resultado = $this->movimentoModel->getMovimentosComSaldoAcumulado($dataInicial, $dataFinal, $contaId, $categoriaId);
-        // dd($resultado);
+        // Aplicar limite e deslocamento
+        $movimentos = $query->orderBy('data_mov', 'DESC')
+            ->limit($perPage, $offset)
+            ->get()
+            ->getResultArray();
+
+        $total = $query->countAllResults(false);
+
         // Passar dados para a view
         return view('movimento/index', [
-            'movimentos' => $resultado['movimentos'],
-            // 'movimentos' => $movimentos,
-            // 'contas' => $this->movimentoModel->getContas(),
-            // 'categorias' => $this->movimentoModel->getCategorias(),
-            'dataInicial' => $dataInicial,
-            'dataFinal' => $dataFinal,
-            'contas' => $contas, // Adicionamos esta linha
-            'categorias' => $categorias, // Adicionamos esta linha
-            'contaSelecionada' => $contaId,
-            'categoriaSelecionada' => $categoriaId,
-            'saldoAnterior' => $saldoAnterior,
-            'saldoAtual' => $saldoAtual
+            'movimentos' => $movimentos,
+            'total' => $total,
+            'currentPage' => $currentPage,
+            'perPage' => $perPage,
+            'search' => $search
         ]);
+        // $search = $this->request->getGet('search');
+
+        // // Obter query personalizada para movimentos
+        // $query = $this->movimentoModel->getMovimento($search);
+
+        // // $movimentos = $this->movimentoModel->getMovimento($search)->paginate(10);
+
+        // // Configurar paginação
+        // $pager = \Config\Services::pager();
+        // $movimentos = $query->paginate(10);
+        // $total = $query->countAllResults(false);
+
+        // // Passar dados para a view
+        // return view('movimento/index', [
+        //     'movimentos' => $movimentos,
+        //     'pager' => $this->movimentoModel->pager,
+        //     'search' => $search,
+        //     'total' => $total
+        // ]);
     }
 
     // Formulário para criar um novo movimento
     public function create()
     {
         $data = [
-            'contas' => $this->contaModel->orderBy('nomeconta', 'ASC')->findAll(),
-            'categorias' => $this->categoriaModel->orderBy('nomecategoria', 'ASC')->findAll(),
+            'contas' => $this->contaModel->findAll(),
+            'categorias' => $this->categoriaModel->findAll(),
         ];
 
         return view('movimento/create', $data);
@@ -103,21 +114,6 @@ class Movimento extends BaseController
     // Formulário para editar movimento
     public function edit($id)
     {
-
-        // Obtém o ID da categoria "Transferência"
-        $categoriaTransferencia = $this->categoriaModel->where('nomecategoria', 'Transferência')->first();
-
-        if ($categoriaTransferencia) {
-            $categoriaIdTransferencia = $categoriaTransferencia['id'];
-
-            // Busca o movimento para verificar a categoria
-            $movimento = $this->movimentoModel->find($id);
-
-            if ($movimento['categoria_id'] == $categoriaIdTransferencia) {
-                return redirect()->back()->with('error', 'Transferências não podem ser editadas na rotina de movimentos. Utilize a rotina específica de transferências.');
-            }
-        }
-
         $movimento = $this->movimentoModel->find($id);
 
         if (!$movimento) {
@@ -126,8 +122,8 @@ class Movimento extends BaseController
 
         $data = [
             'movimento' => $movimento,
-            'contas' => $this->contaModel->orderBy('nomeconta', 'ASC')->findAll(),
-            'categorias' => $this->categoriaModel->orderBy('nomecategoria', 'ASC')->findAll(),
+            'contas' => $this->contaModel->findAll(),
+            'categorias' => $this->categoriaModel->findAll(),
         ];
 
         return view('movimento/edit', $data);
@@ -170,21 +166,6 @@ class Movimento extends BaseController
     // Excluir movimento
     public function delete($id)
     {
-
-        // Obtém o ID da categoria "Transferência"
-        $categoriaTransferencia = $this->categoriaModel->where('nomecategoria', 'Transferência')->first();
-
-        if ($categoriaTransferencia) {
-            $categoriaIdTransferencia = $categoriaTransferencia['id'];
-
-            // Busca o movimento para verificar a categoria
-            $movimento = $this->movimentoModel->find($id);
-
-            if ($movimento['categoria_id'] == $categoriaIdTransferencia) {
-                return redirect()->back()->with('error', 'Transferências não podem ser excluídas na rotina de movimentos. Utilize a rotina específica de transferências.');
-            }
-        }
-
         $this->movimentoModel->delete($id);
         return redirect()->to('/movimento')->with('success', 'Movimento excluído com sucesso.');
     }
