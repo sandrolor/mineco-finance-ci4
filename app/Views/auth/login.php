@@ -71,7 +71,7 @@
             <input type="password" name="password" id="password" class="form-control" placeholder="Senha" required>
 
             <button class="w-100 btn btn-lg btn-primary" type="submit">Login</button>
-            <p class="mt-5 mb-3 text-muted">&copy; 2024-2024 - MinEco - Sandro Luiz Reis</p>
+            <p class="mt-5 mb-3 text-muted">&copy; Financeiro</p>
         </form>
         <?php $msg = session()->getFlashData('error') ?>
         <?php if (!empty($msg)) : ?>
