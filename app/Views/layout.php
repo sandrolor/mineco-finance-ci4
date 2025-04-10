@@ -57,11 +57,11 @@
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item" href="<?= site_url('grupocontas/') ?>">Grupo Contas</a></li>
-                                    <li><a class="dropdown-item" href="<?= site_url('contas/') ?>">Contas</a></li>
+                                    <li><a class="dropdown-item" href="<?= site_url('grupocategorias/') ?>">Grupo Categorias</a></li>
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
-                                    <li><a class="dropdown-item" href="<?= site_url('grupocategorias/') ?>">Grupo Categorias</a></li>
+                                    <li><a class="dropdown-item" href="<?= site_url('contas/') ?>">Contas</a></li>
                                     <li><a class="dropdown-item" href="<?= site_url('categorias/') ?>">Categorias</a></li>
                                 </ul>
                             </li>
