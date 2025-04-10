@@ -5,7 +5,7 @@
     <h2>Movimentos</h2>
 
     <!-- Formulário de busca -->
-    <form method="get" action="<?= site_url('movimentos') ?>" class="mb-4">
+    <form method="get" action="<?= site_url('movimento') ?>" class="mb-4">
         <div class="input-group">
             <input type="text" name="search" value="<?= esc($search) ?>" class="form-control" placeholder="Buscar por histórico ou categoria...">
             <button type="submit" class="btn btn-primary">Buscar</button>
@@ -57,6 +57,8 @@
                         <div class="fw-bold"><?= esc($movimento['historico']) ?></div>
                         <div class="text-muted">
                             <?= esc($movimento['nome_conta']) ?> - <?= esc($movimento['nome_categoria']) ?>
+                            <a href="<?= site_url('movimento/edit/' . $movimento['id']) ?>" class="btn btn-warning btn-sm">Editar</a>
+                            <a href="<?= site_url('movimento/delete/' . $movimento['id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</a>
                         </div>
                     </div>
                     <div class="fw-bold <?= $valorClass ?>">

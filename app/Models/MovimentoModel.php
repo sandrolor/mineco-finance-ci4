@@ -36,8 +36,8 @@ class MovimentoModel extends Model
 
         if (!empty($search)) {
             $builder->like('movimento.historico', $search)
-                ->orLike('contas.nome', $search)
-                ->orLike('categorias.nome', $search);
+                ->orLike('contas.nomeconta', $search)
+                ->orLike('categorias.nomecategoria', $search);
         }
 
         // Ordenar por data de movimento decrescente
