@@ -11,7 +11,7 @@
 <body>
 
     <main>
-        <nav class="navbar navbar-expand-md navbar-dark bg-dark" aria-label="Offcanvas navbar large">
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top" aria-label="Offcanvas navbar large">
             <div class="container-fluid">
                 <a class="navbar-brand" href="<?= site_url('dashboard/') ?>">Financeiro</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar2" aria-controls="offcanvasNavbar2" aria-label="Toggle navigation">
