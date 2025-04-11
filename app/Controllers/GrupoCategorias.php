@@ -11,6 +11,7 @@ class GrupoCategorias extends BaseController
         $grupoCategoriasModel = new GrupoCategoriasModel();
 
         $search = $this->request->getGet('search'); // Obtém o valor do campo de busca
+        $grupoCategoriasModel->where('user_id', session()->get('user_id')); // 👈 filtro por usuário
 
         if ($search) {
             $grupoCategoriasModel->like('nomegrupo', $search); // Adiciona a condição de busca
@@ -36,7 +37,10 @@ class GrupoCategorias extends BaseController
     public function store()
     {
         $grupoCategoriasModel = new GrupoCategoriasModel();
-        $grupoCategoriasModel->save(['nomegrupo' => $this->request->getPost('nomegrupo')]);
+        $grupoCategoriasModel->save([
+            'nomegrupo' => $this->request->getPost('nomegrupo'),
+            'user_id' => session()->get('user_id') // 👈 vincula ao usuário logado
+        ]);
 
         return redirect()->to('/grupocategorias')->with('success', 'Grupo categorias criado com sucesso!');
     }
@@ -44,15 +48,30 @@ class GrupoCategorias extends BaseController
     public function edit($id)
     {
         $grupoCategoriasModel = new GrupoCategoriasModel();
-        $data['grupo'] = $grupoCategoriasModel->find($id);
+        $grupo = $grupoCategoriasModel->where('id', $id)
+            ->where('user_id', session()->get('user_id')) // 👈 protege acesso
+            ->first();
 
-        return view('grupocategorias/edit', $data);
+        if (!$grupo) {
+            return redirect()->to('/grupocategorias')->with('error', 'Grupo não encontrado ou acesso negado.');
+        }
+        return view('grupocategorias/edit', ['grupo' => $grupo]);
     }
 
     public function update($id)
     {
         $grupoCategoriasModel = new GrupoCategoriasModel();
-        $grupoCategoriasModel->update($id, ['nomegrupo' => $this->request->getPost('nomegrupo')]);
+        $grupo = $grupoCategoriasModel->where('id', $id)
+            ->where('user_id', session()->get('user_id')) // 👈 protege acesso
+            ->first();
+
+        if (!$grupo) {
+            return redirect()->to('/grupocategorias')->with('error', 'Grupo não encontrado ou acesso negado.');
+        }
+
+        $grupoCategoriasModel->update($id, [
+            'nomegrupo' => $this->request->getPost('nomegrupo'),
+        ]);
 
         return redirect()->to('/grupocategorias')->with('success', 'Grupo categorias atualizado com sucesso!');
     }
@@ -60,6 +79,14 @@ class GrupoCategorias extends BaseController
     public function delete($id)
     {
         $grupoCategoriasModel = new GrupoCategoriasModel();
+        $grupo = $grupoCategoriasModel->where('id', $id)
+            ->where('user_id', session()->get('user_id')) // 👈 protege acesso
+            ->first();
+
+        if (!$grupo) {
+            return redirect()->to('/grupocategorias')->with('error', 'Grupo não encontrado ou acesso negado.');
+        }
+
         $grupoCategoriasModel->delete($id);
 
         return redirect()->to('/grupocategorias')->with('success', 'Grupo categorias excluído com sucesso!');
