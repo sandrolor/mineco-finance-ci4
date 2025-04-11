@@ -17,6 +17,7 @@ class Auth extends BaseController
 
             if ($user && password_verify($password, $user['password'])) {
                 session()->set(['isLoggedIn' => true, 'username' => $user['username']]);
+                session()->set('user_id', $user['id']); // 👈 ISSO É ESSENCIAL
                 return redirect()->to('/dashboard');
             }
 

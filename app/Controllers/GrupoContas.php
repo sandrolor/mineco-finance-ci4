@@ -10,19 +10,19 @@ class GrupoContas extends BaseController
     {
         $grupoContasModel = new GrupoContasModel();
 
-        $search = $this->request->getGet('search'); // Obtém o valor do campo de busca
+        $search = $this->request->getGet('search');
+        $grupoContasModel->where('user_id', session()->get('user_id')); // 👈 filtro por usuário
 
         if ($search) {
-            $grupoContasModel->like('nomegrupo', $search); // Adiciona a condição de busca
+            $grupoContasModel->like('nomegrupo', $search);
         }
 
         $data = [
-            'grupos' => $grupoContasModel->orderBy('nomegrupo', 'ASC')->paginate(5), // 5 registros por página
-            'pager' => $grupoContasModel->pager->setPath('grupocontas'), // Objeto do Pager
-            'search' => $search, // Passa o termo de busca para a view
+            'grupos' => $grupoContasModel->orderBy('nomegrupo', 'ASC')->paginate(5),
+            'pager' => $grupoContasModel->pager->setPath('grupocontas'),
+            'search' => $search,
         ];
 
-        // Total de registros
         $data['total'] = $grupoContasModel->countAllResults(false);
 
         return view('grupocontas/index', $data);
@@ -36,7 +36,10 @@ class GrupoContas extends BaseController
     public function store()
     {
         $grupoContasModel = new GrupoContasModel();
-        $grupoContasModel->save(['nomegrupo' => $this->request->getPost('nomegrupo')]);
+        $grupoContasModel->save([
+            'nomegrupo' => $this->request->getPost('nomegrupo'),
+            'user_id' => session()->get('user_id') // 👈 vincula ao usuário logado
+        ]);
 
         return redirect()->to('/grupocontas')->with('success', 'Grupo contas criado com sucesso!');
     }
@@ -44,15 +47,31 @@ class GrupoContas extends BaseController
     public function edit($id)
     {
         $grupoContasModel = new GrupoContasModel();
-        $data['grupo'] = $grupoContasModel->find($id);
+        $grupo = $grupoContasModel->where('id', $id)
+            ->where('user_id', session()->get('user_id')) // 👈 protege acesso
+            ->first();
 
-        return view('grupocontas/edit', $data);
+        if (!$grupo) {
+            return redirect()->to('/grupocontas')->with('error', 'Grupo não encontrado ou acesso negado.');
+        }
+
+        return view('grupocontas/edit', ['grupo' => $grupo]);
     }
 
     public function update($id)
     {
         $grupoContasModel = new GrupoContasModel();
-        $grupoContasModel->update($id, ['nomegrupo' => $this->request->getPost('nomegrupo')]);
+        $grupo = $grupoContasModel->where('id', $id)
+            ->where('user_id', session()->get('user_id')) // 👈 protege acesso
+            ->first();
+
+        if (!$grupo) {
+            return redirect()->to('/grupocontas')->with('error', 'Grupo não encontrado ou acesso negado.');
+        }
+
+        $grupoContasModel->update($id, [
+            'nomegrupo' => $this->request->getPost('nomegrupo'),
+        ]);
 
         return redirect()->to('/grupocontas')->with('success', 'Grupo contas atualizado com sucesso!');
     }
@@ -60,6 +79,14 @@ class GrupoContas extends BaseController
     public function delete($id)
     {
         $grupoContasModel = new GrupoContasModel();
+        $grupo = $grupoContasModel->where('id', $id)
+            ->where('user_id', session()->get('user_id')) // 👈 protege acesso
+            ->first();
+
+        if (!$grupo) {
+            return redirect()->to('/grupocontas')->with('error', 'Grupo não encontrado ou acesso negado.');
+        }
+
         $grupoContasModel->delete($id);
 
         return redirect()->to('/grupocontas')->with('success', 'Grupo contas excluído com sucesso!');
