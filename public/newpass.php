@@ -9,4 +9,6 @@ if (isset($_GET['senha'])) {
 }
 ?>
 
-<!-- http://localhost:8282/mineco-finance-ci4/public/newpass.php?senha=admin -->
+<!-- http://localhost:8282/mineco-finance-ci4/public/newpass.php?senha=senha -->
+
+<!-- http://localhost:8080/newpass.php?senha=senha -->
