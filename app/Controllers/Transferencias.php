@@ -33,6 +33,7 @@ class Transferencias extends BaseController
                 $builder->select('id')->from('categorias')->where('nomecategoria', 'Transferência')->limit(1);
             })
             ->where('movimento.valor <', 0) // Apenas saídas
+            ->where('movimento.user_id', session()->get('user_id'))
             ->paginate(10);
 
         // Dados para exibição
@@ -47,7 +48,8 @@ class Transferencias extends BaseController
     // Formulário de nova transferência
     public function create()
     {
-        $data['contas'] = $this->contasModel->findAll(); // Carregar contas
+        $userId = session()->get('user_id');
+        $data['contas'] = $this->contasModel->where('user_id', $userId)->findAll();
         return view('transferencias/form', $data);
     }
 
@@ -66,14 +68,32 @@ class Transferencias extends BaseController
 
     public function edit($id)
     {
-        $data['contas'] = $this->contasModel->findAll();
+        $userId = session()->get('user_id');
+        $data['contas'] = $this->contasModel->where('user_id', $userId)->findAll();
         $data['transferencia'] = $this->transferenciasModel->find($id); // Dados da transferência
+        $transferencia = $this->transferenciasModel
+            ->where('id', $id)
+            ->where('user_id', session()->get('user_id'))
+            ->first();
+
+        if (!$transferencia) {
+            return redirect()->to('/transferencias')->with('error', 'Transferência não encontrada ou acesso negado.');
+        }
         return view('transferencias/form', $data); // Reutilizamos o mesmo formulário
     }
 
     public function update($id)
     {
         $data = $this->request->getPost();
+
+        $transferencia = $this->transferenciasModel
+            ->where('id', $id)
+            ->where('user_id', session()->get('user_id'))
+            ->first();
+
+        if (!$transferencia) {
+            return redirect()->to('/transferencias')->with('error', 'Transferência não encontrada ou acesso negado.');
+        }
 
         // Atualizar os dois movimentos (origem e destino)
         $status = $this->transferenciasModel->updateTransferencia($id, $data);
@@ -88,7 +108,14 @@ class Transferencias extends BaseController
     public function delete($id)
     {
         $status = $this->transferenciasModel->deleteTransferencia($id);
+        $transferencia = $this->transferenciasModel
+            ->where('id', $id)
+            ->where('user_id', session()->get('user_id'))
+            ->first();
 
+        if (!$transferencia) {
+            return redirect()->to('/transferencias')->with('error', 'Transferência não encontrada ou acesso negado.');
+        }
         if ($status) {
             return redirect()->to('transferencias')->with('success', 'Transferência excluída com sucesso!');
         }

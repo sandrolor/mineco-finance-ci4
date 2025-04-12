@@ -19,7 +19,8 @@ class TransferenciasModel extends Model
         'tipo',
         'categoria_id',
         'conta_destino_id',
-        'valor'
+        'valor',
+        'user_id'
     ];
 
     /**
@@ -44,6 +45,7 @@ class TransferenciasModel extends Model
         $this->db->transStart(); // Iniciar transação
 
         // Movimento de saída (conta origem)
+        $userId = session()->get('user_id');
         $saida = [
             'data_mov' => $data['data_mov'],
             'conta_id' => $data['conta_origem'],
@@ -51,6 +53,7 @@ class TransferenciasModel extends Model
             'categoria_id' => $categoriaId, // Categoria "Transferência"
             'historico' => $data['historico'],
             'valor' => -abs($data['valor']), // Negativo para saída
+            'user_id' => $userId,
         ];
         $this->insert($saida);
 
@@ -62,6 +65,7 @@ class TransferenciasModel extends Model
             'categoria_id' => $categoriaId, // Categoria "Transferência"
             'historico' => $data['historico'],
             'valor' => abs($data['valor']), // Positivo para entrada
+            'user_id' => $userId,
         ];
         $this->insert($entrada);
 
@@ -141,11 +145,11 @@ class TransferenciasModel extends Model
     protected array $castHandlers = [];
 
     // Dates
-    protected $useTimestamps = false;
+    protected $useTimestamps = true;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
-    protected $deletedField  = 'deleted_at';
+    //protected $deletedField  = 'deleted_at';
 
     // Validation
     protected $validationRules      = [];
