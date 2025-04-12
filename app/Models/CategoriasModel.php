@@ -12,12 +12,13 @@ class CategoriasModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['nomecategoria', 'grupo_id'];
+    protected $allowedFields    = ['nomecategoria', 'grupo_id', 'user_id'];
 
-    public function getAllWithGroup($search = null)
+    public function getAllWithGroup($search = null, $userId = null)
     {
         $builder = $this->select('categorias.*, grupos_categorias.nomegrupo AS grupo_nomegrupo')
-                        ->join('grupos_categorias', 'grupos_categorias.id = categorias.grupo_id', 'left');
+                        ->join('grupos_categorias', 'grupos_categorias.id = categorias.grupo_id', 'left')
+                        ->where('categorias.user_id', $userId);
 
         if ($search) {
             $builder->like('categorias.nomecategoria', $search);
@@ -29,8 +30,11 @@ class CategoriasModel extends Model
     public function getAllGroups()
     {
         $db = \Config\Database::connect();
-        $query = $db->table('grupos_categorias')->select('id, nomegrupo')->orderBy('nomegrupo', 'ASC')->get();
-        return $query->getResultArray();
+        $builder = $db->table('grupos_categorias')
+        ->select('id, nomegrupo')
+        ->where('user_id', session()->get('user_id')) // 👈 filtro essencial
+        ->orderBy('nomegrupo', 'ASC');
+        return $builder->get()->getResultArray();
     }
 
     protected bool $allowEmptyInserts = false;
@@ -40,11 +44,11 @@ class CategoriasModel extends Model
     protected array $castHandlers = [];
 
     // Dates
-    protected $useTimestamps = false;
+    protected $useTimestamps = true;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
-    protected $deletedField  = 'deleted_at';
+    //protected $deletedField  = 'deleted_at';
 
     // Validation
     protected $validationRules      = [];
