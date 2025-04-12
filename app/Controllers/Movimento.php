@@ -48,7 +48,7 @@ class Movimento extends BaseController
     {
         $userId = session()->get('user_id');
         $data = [
-            'contas' => $this->contaModel->where('user_id', $userId)->findAll(),
+            'contas' => $this->contaModel->where('user_id', $userId)->orderBy('nomeconta', 'ASC')->findAll(),
             'categorias' => $this->categoriaModel->where('user_id', $userId)
                 ->where('nomecategoria !=', 'Transferência') // Remove transferência
                 ->orderBy('nomecategoria', 'ASC')
@@ -97,7 +97,7 @@ class Movimento extends BaseController
 
         $data = [
             'movimento' => $movimento,
-            'contas' => $this->contaModel->where('user_id', $userId)->findAll(),
+            'contas' => $this->contaModel->where('user_id', $userId)->orderBy('nomeconta', 'ASC')->findAll(),
             'categorias' => $this->categoriaModel->where('user_id', $userId)
                 ->where('nomecategoria !=', 'Transferência') // Remove transferência
                 ->orderBy('nomecategoria', 'ASC')
