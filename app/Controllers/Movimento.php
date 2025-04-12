@@ -19,20 +19,15 @@ class Movimento extends BaseController
         $this->categoriaModel = new CategoriasModel();
     }
 
-    // Listar movimentos com paginação e busca
     public function index()
     {
         $search = $this->request->getGet('search');
+        $query = $this->movimentoModel->getMovimento($search, session()->get('user_id'));
 
-        // Obter query personalizada para movimentos
-        $query = $this->movimentoModel->getMovimento($search);
-
-        // Configurar paginação manual
         $perPage = 10;
         $currentPage = (int)($this->request->getGet('page') ?? 1);
         $offset = ($currentPage - 1) * $perPage;
 
-        // Aplicar limite e deslocamento
         $movimentos = $query->orderBy('data_mov', 'DESC')
             ->limit($perPage, $offset)
             ->get()
@@ -40,7 +35,6 @@ class Movimento extends BaseController
 
         $total = $query->countAllResults(false);
 
-        // Passar dados para a view
         return view('movimento/index', [
             'movimentos' => $movimentos,
             'total' => $total,
@@ -48,44 +42,24 @@ class Movimento extends BaseController
             'perPage' => $perPage,
             'search' => $search
         ]);
-        // $search = $this->request->getGet('search');
-
-        // // Obter query personalizada para movimentos
-        // $query = $this->movimentoModel->getMovimento($search);
-
-        // // $movimentos = $this->movimentoModel->getMovimento($search)->paginate(10);
-
-        // // Configurar paginação
-        // $pager = \Config\Services::pager();
-        // $movimentos = $query->paginate(10);
-        // $total = $query->countAllResults(false);
-
-        // // Passar dados para a view
-        // return view('movimento/index', [
-        //     'movimentos' => $movimentos,
-        //     'pager' => $this->movimentoModel->pager,
-        //     'search' => $search,
-        //     'total' => $total
-        // ]);
     }
 
-    // Formulário para criar um novo movimento
     public function create()
     {
+        $userId = session()->get('user_id');
         $data = [
-            'contas' => $this->contaModel->findAll(),
-            'categorias' => $this->categoriaModel->findAll(),
+            'contas' => $this->contaModel->where('user_id', $userId)->findAll(),
+            'categorias' => $this->categoriaModel->where('user_id', $userId)->findAll(),
         ];
 
         return view('movimento/create', $data);
     }
 
-    // Salvar novo movimento
     public function store()
     {
         $dados = $this->request->getPost();
+        $dados['user_id'] = session()->get('user_id');
 
-        // Validar entrada
         if (!$this->validate([
             'data_mov' => 'required|valid_date',
             'historico' => 'required|max_length[255]',
@@ -98,7 +72,6 @@ class Movimento extends BaseController
             return redirect()->back()->with('errors', $this->validator->getErrors())->withInput();
         }
 
-        // Tratar transferências
         if ($dados['tipo'] === 'Transferência') {
             if (empty($dados['conta_destino_id']) || $dados['conta_id'] === $dados['conta_destino_id']) {
                 return redirect()->back()->with('errors', ['conta_destino_id' => 'Selecione uma conta de destino válida.'])->withInput();
@@ -106,15 +79,14 @@ class Movimento extends BaseController
             $dados['categoria_id'] = $this->categoriaModel->where('nome', 'Transferência')->first()['id'] ?? null;
         }
 
-        // Salvar movimento
         $this->movimentoModel->inserirMovimento($dados);
         return redirect()->to('/movimento')->with('success', 'Movimento registrado com sucesso.');
     }
 
-    // Formulário para editar movimento
     public function edit($id)
     {
-        $movimento = $this->movimentoModel->find($id);
+        $userId = session()->get('user_id');
+        $movimento = $this->movimentoModel->where('id', $id)->where('user_id', $userId)->first();
 
         if (!$movimento) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException("Movimento não encontrado.");
@@ -122,19 +94,24 @@ class Movimento extends BaseController
 
         $data = [
             'movimento' => $movimento,
-            'contas' => $this->contaModel->findAll(),
-            'categorias' => $this->categoriaModel->findAll(),
+            'contas' => $this->contaModel->where('user_id', $userId)->findAll(),
+            'categorias' => $this->categoriaModel->where('user_id', $userId)->findAll(),
         ];
 
         return view('movimento/edit', $data);
     }
 
-    // Atualizar movimento
     public function update($id)
     {
+        $userId = session()->get('user_id');
+        $movimento = $this->movimentoModel->where('id', $id)->where('user_id', $userId)->first();
+
+        if (!$movimento) {
+            return redirect()->to('/movimento')->with('error', 'Movimento não encontrado ou acesso negado.');
+        }
+
         $dados = $this->request->getPost();
 
-        // Validar entrada
         if (!$this->validate([
             'data_mov' => 'required|valid_date',
             'historico' => 'required|max_length[255]',
@@ -147,7 +124,6 @@ class Movimento extends BaseController
             return redirect()->back()->with('errors', $this->validator->getErrors())->withInput();
         }
 
-        // Tratar transferências
         if ($dados['tipo'] === 'Transferência') {
             if (empty($dados['conta_destino_id']) || $dados['conta_id'] === $dados['conta_destino_id']) {
                 return redirect()->back()->with('errors', ['conta_destino_id' => 'Selecione uma conta de destino válida.'])->withInput();
@@ -155,17 +131,20 @@ class Movimento extends BaseController
             $dados['categoria_id'] = $this->categoriaModel->where('nome', 'Transferência')->first()['id'] ?? null;
         }
 
-        // Para Receita ou Despesa
         $dados['valor'] = ($dados['tipo'] === 'Despesa') ? -abs($dados['valor']) : abs($dados['valor']);
-
-        // Atualizar movimento
         $this->movimentoModel->update($id, $dados);
-        return redirect()->to('/movimento')->with('success', 'Movimento atualizado com sucesso.');
+        return redirect()->to('/movimento')->with('success', 'Movimento atualizado com sucesso!');
     }
 
-    // Excluir movimento
     public function delete($id)
     {
+        $userId = session()->get('user_id');
+        $movimento = $this->movimentoModel->where('id', $id)->where('user_id', $userId)->first();
+
+        if (!$movimento) {
+            return redirect()->to('/movimento')->with('error', 'Movimento não encontrado ou acesso negado.');
+        }
+
         $this->movimentoModel->delete($id);
         return redirect()->to('/movimento')->with('success', 'Movimento excluído com sucesso.');
     }

@@ -19,20 +19,17 @@ class MovimentoModel extends Model
         'tipo',
         'categoria_id',
         'conta_destino_id',
-        'valor'
+        'valor',
+        'user_id' // 👈 necessário para multiusuário
     ];
 
-    /**
-     * Retorna os movimentos com dados adicionais para listagem.
-     * Inclui o nome da conta e da categoria relacionados.
-     */
-    public function getMovimento($search = null)
+    public function getMovimento($search = null, $userId = null)
     {
-
         $builder = $this->db->table('movimento')
             ->select('movimento.*, contas.nomeconta AS nome_conta, categorias.nomecategoria AS nome_categoria')
             ->join('contas', 'contas.id = movimento.conta_id')
-            ->join('categorias', 'categorias.id = movimento.categoria_id');
+            ->join('categorias', 'categorias.id = movimento.categoria_id')
+            ->where('movimento.user_id', $userId); // 👈 filtro multiusuário
 
         if (!empty($search)) {
             $builder->like('movimento.historico', $search)
@@ -40,47 +37,45 @@ class MovimentoModel extends Model
                 ->orLike('categorias.nomecategoria', $search);
         }
 
-        // Ordenar por data de movimento decrescente
         $builder->orderBy('data_mov', 'DESC');
         return $builder;
     }
 
-    /**
-     * Insere um novo movimento (Receita, Despesa ou Transferência).
-     */
     public function inserirMovimento(array $dados)
     {
-        // Se for transferência
+        $userId = $dados['user_id'] ?? session()->get('user_id');
+
         if ($dados['tipo'] === 'Transferência') {
             $db = \Config\Database::connect();
             $db->transStart();
 
-            // Movimento da conta de origem (valor negativo)
             $this->insert([
                 'data_mov' => $dados['data_mov'],
-                'historico'      => $dados['historico'],
-                'conta_id'       => $dados['conta_id'], // Origem
-                'tipo'           => 'Transferência',
-                'categoria_id'   => $dados['categoria_id'], // Categoria padrão: "Transferência"
-                'valor'          => -abs($dados['valor']), // Negativo
+                'historico' => $dados['historico'],
+                'conta_id' => $dados['conta_id'],
+                'tipo' => 'Transferência',
+                'categoria_id' => $dados['categoria_id'],
+                'valor' => -abs($dados['valor']),
+                'user_id' => $userId
             ]);
 
-            // Movimento da conta de destino (valor positivo)
             $this->insert([
                 'data_mov' => $dados['data_mov'],
-                'historico'      => $dados['historico'],
-                'conta_id'       => $dados['conta_destino_id'], // Destino
-                'tipo'           => 'Transferência',
-                'categoria_id'   => $dados['categoria_id'], // Categoria padrão: "Transferência"
-                'valor'          => abs($dados['valor']), // Positivo
+                'historico' => $dados['historico'],
+                'conta_id' => $dados['conta_destino_id'],
+                'tipo' => 'Transferência',
+                'categoria_id' => $dados['categoria_id'],
+                'valor' => abs($dados['valor']),
+                'user_id' => $userId
             ]);
 
             $db->transComplete();
             return $db->transStatus();
         }
 
-        // Para Receita ou Despesa
         $dados['valor'] = ($dados['tipo'] === 'Despesa') ? -abs($dados['valor']) : abs($dados['valor']);
+        $dados['user_id'] = $userId;
+
         return $this->insert($dados);
     }
 
@@ -89,9 +84,9 @@ class MovimentoModel extends Model
         $builder = $this->db->table('movimento')
             ->select('contas.nomeconta AS nome_conta, SUM(movimento.valor) AS saldo')
             ->join('contas', 'contas.id = movimento.conta_id')
+            ->where('movimento.user_id', session()->get('user_id')) // 👈 multiusuário
             ->groupBy('movimento.conta_id');
 
-        // Aplicar filtro de data, se fornecido
         if ($startDate) {
             $builder->where('movimento.data_mov >=', $startDate);
         }
@@ -110,9 +105,9 @@ class MovimentoModel extends Model
             ->select('SUM(CASE WHEN movimento.valor < 0 THEN movimento.valor ELSE 0 END) AS despesas')
             ->select('SUM(movimento.valor) AS saldo')
             ->join('categorias', 'categorias.id = movimento.categoria_id')
+            ->where('movimento.user_id', session()->get('user_id')) // 👈 multiusuário
             ->groupBy('movimento.categoria_id');
 
-        // Aplicar filtro de data, se fornecido
         if ($startDate) {
             $builder->where('movimento.data_mov >=', $startDate);
         }
@@ -129,27 +124,16 @@ class MovimentoModel extends Model
     protected array $casts = [];
     protected array $castHandlers = [];
 
-    // Dates
-    protected $useTimestamps = false;
+    protected $useTimestamps = true;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
-    protected $deletedField  = 'deleted_at';
+    //protected $deletedField  = 'deleted_at';
 
-    // Validation
     protected $validationRules      = [];
     protected $validationMessages   = [];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 
-    // Callbacks
     protected $allowCallbacks = true;
-    protected $beforeInsert   = [];
-    protected $afterInsert    = [];
-    protected $beforeUpdate   = [];
-    protected $afterUpdate    = [];
-    protected $beforeFind     = [];
-    protected $afterFind      = [];
-    protected $beforeDelete   = [];
-    protected $afterDelete    = [];
 }
