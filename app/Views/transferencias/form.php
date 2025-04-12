@@ -3,6 +3,11 @@
 
 <div class="container mt-5">
     <h2><?= isset($transferencia) ? 'Editar Transferência' : 'Nova Transferência' ?></h2>
+
+    <?php if (session()->getFlashdata('error')): ?>
+        <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
+    <?php endif; ?>
+
     <form method="post" action="<?= isset($transferencia) ? site_url('transferencias/update/' . $transferencia['id']) : site_url('transferencias/store') ?>">
         <?= csrf_field() ?>
         <div class="mb-3">

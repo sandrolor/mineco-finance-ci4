@@ -49,7 +49,7 @@ class Transferencias extends BaseController
     public function create()
     {
         $userId = session()->get('user_id');
-        $data['contas'] = $this->contasModel->where('user_id', $userId)->findAll();
+        $data['contas'] = $this->contasModel->where('user_id', $userId)->orderBy('nomeconta', 'ASC')->findAll();
         return view('transferencias/form', $data);
     }
 
@@ -57,6 +57,13 @@ class Transferencias extends BaseController
     public function store()
     {
         $data = $this->request->getPost();
+
+        if ($data['conta_origem'] === $data['conta_destino']) {
+            return redirect()->back()
+                ->with('error', 'Conta origem e destino não podem ser iguais!')
+                ->withInput();
+        }
+
         $status = $this->transferenciasModel->registrarTransferencia($data);
 
         if ($status) {
@@ -69,7 +76,7 @@ class Transferencias extends BaseController
     public function edit($id)
     {
         $userId = session()->get('user_id');
-        $data['contas'] = $this->contasModel->where('user_id', $userId)->findAll();
+        $data['contas'] = $this->contasModel->where('user_id', $userId)->orderBy('nomeconta', 'ASC')->findAll();
         $data['transferencia'] = $this->transferenciasModel->find($id); // Dados da transferência
         $transferencia = $this->transferenciasModel
             ->where('id', $id)
@@ -85,6 +92,12 @@ class Transferencias extends BaseController
     public function update($id)
     {
         $data = $this->request->getPost();
+
+        if ($data['conta_origem'] === $data['conta_destino']) {
+            return redirect()->back()
+                ->with('error', 'Conta origem e destino não podem ser iguais!')
+                ->withInput();
+        }
 
         $transferencia = $this->transferenciasModel
             ->where('id', $id)
