@@ -76,7 +76,7 @@ class Movimento extends BaseController
             if (empty($dados['conta_destino_id']) || $dados['conta_id'] === $dados['conta_destino_id']) {
                 return redirect()->back()->with('errors', ['conta_destino_id' => 'Selecione uma conta de destino válida.'])->withInput();
             }
-            $dados['categoria_id'] = $this->categoriaModel->where('nome', 'Transferência')->first()['id'] ?? null;
+            $dados['categoria_id'] = $this->categoriaModel->where('nomecategoria', 'Transferência')->first()['id'] ?? null;
         }
 
         $this->movimentoModel->inserirMovimento($dados);
@@ -128,7 +128,7 @@ class Movimento extends BaseController
             if (empty($dados['conta_destino_id']) || $dados['conta_id'] === $dados['conta_destino_id']) {
                 return redirect()->back()->with('errors', ['conta_destino_id' => 'Selecione uma conta de destino válida.'])->withInput();
             }
-            $dados['categoria_id'] = $this->categoriaModel->where('nome', 'Transferência')->first()['id'] ?? null;
+            $dados['categoria_id'] = $this->categoriaModel->where('nomecategoria', 'Transferência')->first()['id'] ?? null;
         }
 
         $dados['valor'] = ($dados['tipo'] === 'Despesa') ? -abs($dados['valor']) : abs($dados['valor']);
