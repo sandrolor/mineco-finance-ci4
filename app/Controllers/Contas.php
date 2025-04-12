@@ -18,7 +18,7 @@ class Contas extends BaseController
     {
         $search = $this->request->getGet('search');
         $data = [
-            'contas' => $this->contasModel->getAllWithGroup($search),
+            'contas' => $this->contasModel->getAllWithGroup($search, session()->get('user_id')),
             'pager' => $this->contasModel->pager,
             'search' => $search,
         ];
@@ -37,14 +37,25 @@ class Contas extends BaseController
 
     public function store()
     {
-        $this->contasModel->save($this->request->getPost());
+        $post = $this->request->getPost();
+        $post['user_id'] = session()->get('user_id');
+        $this->contasModel->save($post);
+
         return redirect()->to('contas')->with('success', 'Conta adicionada com sucesso!');
     }
 
     public function edit($id)
     {
+        $conta = $this->contasModel->where('id', $id)
+                                   ->where('user_id', session()->get('user_id'))
+                                   ->first();
+
+        if (!$conta) {
+            return redirect()->to('contas')->with('error', 'Conta não encontrada ou acesso negado.');
+        }
+
         $data = [
-            'conta' => $this->contasModel->find($id),
+            'conta' => $conta,
             'grupos' => $this->contasModel->getAllGroups(),
         ];
 
@@ -53,12 +64,28 @@ class Contas extends BaseController
 
     public function update($id)
     {
+        $conta = $this->contasModel->where('id', $id)
+                                   ->where('user_id', session()->get('user_id'))
+                                   ->first();
+
+        if (!$conta) {
+            return redirect()->to('contas')->with('error', 'Conta não encontrada ou acesso negado.');
+        }
+
         $this->contasModel->update($id, $this->request->getPost());
         return redirect()->to('contas')->with('success', 'Conta atualizada com sucesso!');
     }
 
     public function delete($id)
     {
+        $conta = $this->contasModel->where('id', $id)
+                                   ->where('user_id', session()->get('user_id'))
+                                   ->first();
+
+        if (!$conta) {
+            return redirect()->to('contas')->with('error', 'Conta não encontrada ou acesso negado.');
+        }
+
         $this->contasModel->delete($id);
         return redirect()->to('contas')->with('success', 'Conta excluída com sucesso!');
     }

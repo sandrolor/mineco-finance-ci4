@@ -12,12 +12,13 @@ class ContasModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['nomeconta', 'grupo_id'];
+    protected $allowedFields    = ['nomeconta', 'grupo_id', 'user_id'];
 
-    public function getAllWithGroup($search = null)
+    public function getAllWithGroup($search = null, $userId = null)
     {
         $builder = $this->select('contas.*, grupos_contas.nomegrupo AS grupo_nomegrupo')
-                        ->join('grupos_contas', 'grupos_contas.id = contas.grupo_id', 'left');
+            ->join('grupos_contas', 'grupos_contas.id = contas.grupo_id', 'left')
+            ->where('contas.user_id', $userId);
 
         if ($search) {
             $builder->like('contas.nomeconta', $search);
@@ -29,9 +30,14 @@ class ContasModel extends Model
     public function getAllGroups()
     {
         $db = \Config\Database::connect();
-        $query = $db->table('grupos_contas')->select('id, nomegrupo')->orderBy('nomegrupo', 'ASC')->get();
-        return $query->getResultArray();
+        $builder = $db->table('grupos_contas')
+            ->select('id, nomegrupo')
+            ->where('user_id', session()->get('user_id')) // 👈 filtro essencial
+            ->orderBy('nomegrupo', 'ASC');
+
+        return $builder->get()->getResultArray();
     }
+
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -39,27 +45,16 @@ class ContasModel extends Model
     protected array $casts = [];
     protected array $castHandlers = [];
 
-    // Dates
-    protected $useTimestamps = false;
+    protected $useTimestamps = true;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
     protected $deletedField  = 'deleted_at';
 
-    // Validation
     protected $validationRules      = [];
     protected $validationMessages   = [];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 
-    // Callbacks
     protected $allowCallbacks = true;
-    protected $beforeInsert   = [];
-    protected $afterInsert    = [];
-    protected $beforeUpdate   = [];
-    protected $afterUpdate    = [];
-    protected $beforeFind     = [];
-    protected $afterFind      = [];
-    protected $beforeDelete   = [];
-    protected $afterDelete    = [];
 }
