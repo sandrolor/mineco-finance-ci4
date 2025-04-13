@@ -71,6 +71,9 @@
             <div class="text-end fw-bold mt-2">
                 Saldo do dia: R$ <?= number_format($saldoDia, 2, ',', '.') ?>
             </div>
+            <div class="text-end fw-bold mt-2">
+                Total: R$ <strong><?= number_format(array_sum(array_column($movimentos, 'valor')), 2, ',', '.') ?></strong>
+            </div>
         </div>
     <?php else: ?>
         <div class="alert alert-info">

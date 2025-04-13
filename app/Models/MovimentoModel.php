@@ -85,6 +85,7 @@ class MovimentoModel extends Model
             ->select('contas.nomeconta AS nome_conta, SUM(movimento.valor) AS saldo')
             ->join('contas', 'contas.id = movimento.conta_id')
             ->where('movimento.user_id', session()->get('user_id')) // 👈 multiusuário
+            ->orderBy('contas.nomeconta', 'ASC') // Adicione esta linha
             ->groupBy('movimento.conta_id');
 
         if ($startDate) {
@@ -106,6 +107,7 @@ class MovimentoModel extends Model
             ->select('SUM(movimento.valor) AS saldo')
             ->join('categorias', 'categorias.id = movimento.categoria_id')
             ->where('movimento.user_id', session()->get('user_id')) // 👈 multiusuário
+            ->orderBy('categorias.nomecategoria', 'ASC')
             ->groupBy('movimento.categoria_id');
 
         if ($startDate) {

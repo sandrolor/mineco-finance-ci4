@@ -22,26 +22,31 @@
     <!-- Tabela de Saldos -->
     <table class="table table-striped">
         <thead>
-        <tr>
-            <th>Conta</th>
-            <th>Saldo (R$)</th>
-        </tr>
+            <tr>
+                <th>Conta</th>
+                <th>Saldo (R$)</th>
+            </tr>
         </thead>
         <tbody>
-        <?php if (!empty($saldos)): ?>
-            
-            <?php foreach ($saldos as $saldo): ?>
+            <?php if (!empty($saldos)): ?>
+
+                <?php foreach ($saldos as $saldo): ?>
+                    <tr>
+
+                        <td><?= esc($saldo['nome_conta']) ?></td>
+                        <td><?= number_format($saldo['saldo'], 2, ',', '.') ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
                 <tr>
-            
-                    <td><?= esc($saldo['nome_conta']) ?></td>
-                    <td><?= number_format($saldo['saldo'], 2, ',', '.') ?></td>
+                    <td colspan="2">Nenhum registro encontrado no período selecionado.</td>
                 </tr>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <tr>
-                <td colspan="2">Nenhum registro encontrado no período selecionado.</td>
+            <?php endif; ?>
+            // No final da tabela (saldo_contas.php):
+            <tr class="table-primary">
+                <td><strong>Total</strong></td>
+                <td><strong><?= number_format(array_sum(array_column($saldos, 'saldo')), 2, ',', '.') ?></strong></td>
             </tr>
-        <?php endif; ?>
         </tbody>
     </table>
 </div>
