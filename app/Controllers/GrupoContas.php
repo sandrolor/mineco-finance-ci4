@@ -36,13 +36,32 @@ class GrupoContas extends BaseController
     public function store()
     {
         $grupoContasModel = new GrupoContasModel();
+
+        // Obtém os dados do formulário
+        $data = $this->request->getPost();
+        $data['user_id'] = session()->get('user_id'); // Adiciona o user_id à lista de dados
+
+        // Verifica se já existe um grupo com o mesmo nome para o mesmo user_id
+        $existingGroup = $grupoContasModel
+            ->where('nomegrupo', $data['nomegrupo'])
+            ->where('user_id', $data['user_id'])
+            ->first();
+
+        if ($existingGroup) {
+            return redirect()->back()
+                ->with('errors', ['nomegrupo' => 'O nome do grupo já está em uso.'])
+                ->withInput();
+        }
+
+        // Salva os dados no banco de dados
         $grupoContasModel->save([
-            'nomegrupo' => $this->request->getPost('nomegrupo'),
-            'user_id' => session()->get('user_id') // 👈 vincula ao usuário logado
+            'nomegrupo' => $data['nomegrupo'],
+            'user_id' => $data['user_id']
         ]);
 
         return redirect()->to('/grupocontas')->with('success', 'Grupo contas criado com sucesso!');
     }
+
 
     public function edit($id)
     {
@@ -68,7 +87,21 @@ class GrupoContas extends BaseController
         if (!$grupo) {
             return redirect()->to('/grupocontas')->with('error', 'Grupo não encontrado ou acesso negado.');
         }
+        // Obtém os dados do formulário
+        $data = $this->request->getPost();
+        $data['user_id'] = session()->get('user_id'); // Adiciona o user_id à lista de dados
 
+        // Verifica se já existe um grupo com o mesmo nome para o mesmo user_id
+        $existingGroup = $grupoContasModel
+            ->where('nomegrupo', $data['nomegrupo'])
+            ->where('user_id', $data['user_id'])
+            ->first();
+
+        if ($existingGroup) {
+            return redirect()->back()
+                ->with('errors', ['nomegrupo' => 'O nome do grupo já está em uso.'])
+                ->withInput();
+        }
         $grupoContasModel->update($id, [
             'nomegrupo' => $this->request->getPost('nomegrupo'),
         ]);
