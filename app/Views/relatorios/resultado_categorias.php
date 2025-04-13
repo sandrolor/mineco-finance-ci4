@@ -6,6 +6,7 @@
 
     <!-- Filtro de Data -->
     <form method="get" class="row g-3 my-3">
+        <?= csrf_field() ?>
         <div class="col-md-4">
             <label for="start_date" class="form-label">Data Inicial</label>
             <input type="date" id="start_date" name="start_date" class="form-control" value="<?= esc($startDate) ?>">

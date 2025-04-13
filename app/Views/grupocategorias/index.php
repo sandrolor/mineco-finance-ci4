@@ -5,6 +5,7 @@
     <h2>Grupos de Categorias</h2>
 
     <form method="get" class="d-flex mb-3">
+        <?= csrf_field() ?>
         <input type="text" name="search" class="form-control me-2" placeholder="Buscar grupo..." value="<?= esc(service('request')->getGet('search')) ?>">
         <button class="btn btn-primary">Buscar</button>
     </form>

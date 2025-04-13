@@ -6,6 +6,7 @@
 
     <!-- Formulário de busca -->
     <form method="get" action="<?= site_url('movimento') ?>" class="mb-4">
+        <?= csrf_field() ?>
         <div class="input-group">
             <input type="text" name="search" value="<?= esc($search) ?>" class="form-control" placeholder="Buscar por histórico ou categoria...">
             <button type="submit" class="btn btn-primary">Buscar</button>
