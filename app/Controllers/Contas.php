@@ -37,6 +37,23 @@ class Contas extends BaseController
 
     public function store()
     {
+        // Obtém os dados do formulário
+        $data = $this->request->getPost();
+        $data['user_id'] = session()->get('user_id'); // Adiciona o user_id à lista de dados
+
+        // Verifica se já existe um grupo com o mesmo nome para o mesmo user_id
+        $existingGroup = $this->contasModel
+            ->where('nomeconta', $data['nomeconta'])
+            ->where('user_id', $data['user_id'])
+            ->first();
+
+        if ($existingGroup) {
+            return redirect()->back()
+                ->with('errors', ['nomeconta' => 'O nome da conta já está em uso.'])
+                ->withInput();
+        }
+
+        // Salva os dados no banco de dados
         $post = $this->request->getPost();
         $post['user_id'] = session()->get('user_id');
         $this->contasModel->save($post);
@@ -47,8 +64,8 @@ class Contas extends BaseController
     public function edit($id)
     {
         $conta = $this->contasModel->where('id', $id)
-                                   ->where('user_id', session()->get('user_id'))
-                                   ->first();
+            ->where('user_id', session()->get('user_id'))
+            ->first();
 
         if (!$conta) {
             return redirect()->to('contas')->with('error', 'Conta não encontrada ou acesso negado.');
@@ -65,11 +82,27 @@ class Contas extends BaseController
     public function update($id)
     {
         $conta = $this->contasModel->where('id', $id)
-                                   ->where('user_id', session()->get('user_id'))
-                                   ->first();
+            ->where('user_id', session()->get('user_id'))
+            ->first();
 
         if (!$conta) {
             return redirect()->to('contas')->with('error', 'Conta não encontrada ou acesso negado.');
+        }
+
+        // Obtém os dados do formulário
+        $data = $this->request->getPost();
+        $data['user_id'] = session()->get('user_id'); // Adiciona o user_id à lista de dados
+
+        // Verifica se já existe um grupo com o mesmo nome para o mesmo user_id
+        $existingGroup = $this->contasModel
+            ->where('nomeconta', $data['nomeconta'])
+            ->where('user_id', $data['user_id'])
+            ->first();
+
+        if ($existingGroup) {
+            return redirect()->back()
+                ->with('errors', ['nomeconta' => 'O nome da conta já está em uso.'])
+                ->withInput();
         }
 
         $this->contasModel->update($id, $this->request->getPost());
@@ -79,8 +112,8 @@ class Contas extends BaseController
     public function delete($id)
     {
         $conta = $this->contasModel->where('id', $id)
-                                   ->where('user_id', session()->get('user_id'))
-                                   ->first();
+            ->where('user_id', session()->get('user_id'))
+            ->first();
 
         if (!$conta) {
             return redirect()->to('contas')->with('error', 'Conta não encontrada ou acesso negado.');
