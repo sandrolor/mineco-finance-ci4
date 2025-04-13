@@ -3,7 +3,13 @@
 
 <div class="container mt-5">
     <h2>Editar Categoria</h2>
-
+    <?php if (session()->getFlashdata('errors')): ?>
+        <div class="alert alert-danger">
+            <?php foreach (session()->getFlashdata('errors') as $error): ?>
+                <?= $error ?><br>
+            <?php endforeach ?>
+        </div>
+    <?php endif; ?>
     <form action="<?= site_url('categorias/update/' . $categoria['id']) ?>" method="post">
         <?= csrf_field() ?>
         <div class="mb-3">
