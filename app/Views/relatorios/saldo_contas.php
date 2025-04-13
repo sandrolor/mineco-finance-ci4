@@ -42,8 +42,7 @@
                 <tr>
                     <td colspan="2">Nenhum registro encontrado no período selecionado.</td>
                 </tr>
-            <?php endif; ?>
-            // No final da tabela (saldo_contas.php):
+            <?php endif; ?>            
             <tr class="table-primary">
                 <td><strong>Total</strong></td>
                 <td><strong><?= number_format(array_sum(array_column($saldos, 'saldo')), 2, ',', '.') ?></strong></td>

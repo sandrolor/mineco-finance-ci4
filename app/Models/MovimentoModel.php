@@ -107,16 +107,17 @@ class MovimentoModel extends Model
             ->select('SUM(movimento.valor) AS saldo')
             ->join('categorias', 'categorias.id = movimento.categoria_id')
             ->where('movimento.user_id', session()->get('user_id')) // 👈 multiusuário
+            ->where('categorias.nomecategoria !=', 'Transferência') // 👈 Exclui a categoria "Transferência"
             ->orderBy('categorias.nomecategoria', 'ASC')
             ->groupBy('movimento.categoria_id');
-
+    
         if ($startDate) {
             $builder->where('movimento.data_mov >=', $startDate);
         }
         if ($endDate) {
             $builder->where('movimento.data_mov <=', $endDate);
         }
-
+    
         return $builder->get()->getResultArray();
     }
 
