@@ -103,6 +103,12 @@ class Movimento extends BaseController
                 ->orderBy('nomecategoria', 'ASC')
                 ->findAll(),
         ];
+        
+        if (($data['movimento']['tipo'] ?? null) === null) {
+            return redirect()->back()
+                ->with('errors', ['tipo' => 'Utilize a rotina de Transferência.'])
+                ->withInput();
+        }
 
         return view('movimento/edit', $data);
     }
@@ -149,6 +155,12 @@ class Movimento extends BaseController
 
         if (!$movimento) {
             return redirect()->to('/movimento')->with('error', 'Movimento não encontrado ou acesso negado.');
+        }
+
+        if (($data['movimento']['tipo'] ?? null) === null) {
+            return redirect()->back()
+                ->with('errors', ['tipo' => 'Utilize a rotina de Transferência.'])
+                ->withInput();
         }
 
         $this->movimentoModel->delete($id);

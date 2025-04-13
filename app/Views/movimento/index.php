@@ -3,7 +3,13 @@
 
 <div class="container mt-5">
     <h2>Movimentos</h2>
-
+    <?php if (session()->getFlashdata('errors')): ?>
+        <div class="alert alert-danger">
+            <?php foreach (session()->getFlashdata('errors') as $error): ?>
+                <?= $error ?><br>
+            <?php endforeach ?>
+        </div>
+    <?php endif; ?>
     <!-- Formulário de busca -->
     <form method="get" action="<?= site_url('movimento') ?>" class="mb-4">
         <?= csrf_field() ?>
