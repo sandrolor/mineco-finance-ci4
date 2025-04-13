@@ -34,9 +34,28 @@ class GrupoCategorias extends BaseController
         return view('grupocategorias/create');
     }
 
+
     public function store()
     {
         $grupoCategoriasModel = new GrupoCategoriasModel();
+
+        // Obtém os dados do formulário
+        $data = $this->request->getPost();
+        $data['user_id'] = session()->get('user_id'); // Adiciona o user_id à lista de dados
+
+        // Verifica se já existe um grupo com o mesmo nome para o mesmo user_id
+        $existingGroup = $grupoCategoriasModel
+            ->where('nomegrupo', $data['nomegrupo'])
+            ->where('user_id', $data['user_id'])
+            ->first();
+
+        if ($existingGroup) {
+            return redirect()->back()
+                ->with('errors', ['nomegrupo' => 'O nome do grupo já está em uso.'])
+                ->withInput();
+        }
+
+        // Salva os dados no banco de dados
         $grupoCategoriasModel->save([
             'nomegrupo' => $this->request->getPost('nomegrupo'),
             'user_id' => session()->get('user_id') // 👈 vincula ao usuário logado
@@ -67,6 +86,22 @@ class GrupoCategorias extends BaseController
 
         if (!$grupo) {
             return redirect()->to('/grupocategorias')->with('error', 'Grupo não encontrado ou acesso negado.');
+        }
+
+        // Obtém os dados do formulário
+        $data = $this->request->getPost();
+        $data['user_id'] = session()->get('user_id'); // Adiciona o user_id à lista de dados
+
+        // Verifica se já existe um grupo com o mesmo nome para o mesmo user_id
+        $existingGroup = $grupoCategoriasModel
+            ->where('nomegrupo', $data['nomegrupo'])
+            ->where('user_id', $data['user_id'])
+            ->first();
+
+        if ($existingGroup) {
+            return redirect()->back()
+                ->with('errors', ['nomegrupo' => 'O nome do grupo já está em uso.'])
+                ->withInput();
         }
 
         $grupoCategoriasModel->update($id, [
