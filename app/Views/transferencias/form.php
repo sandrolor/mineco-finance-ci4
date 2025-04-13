@@ -40,7 +40,7 @@
         </div>
         <div class="mb-3">
             <label for="historico" class="form-label">Histórico</label>
-            <input type="text" name="historico" class="form-control" rows="3"><?= isset($transferencia) ? esc($transferencia['historico']) : '' ?></textarea>
+            <textarea name="historico" class="form-control" rows="3"><?= isset($transferencia) ? esc($transferencia['historico']) : '' ?></textarea>
         </div>
         <button type="submit" class="btn btn-primary"><?= isset($transferencia) ? 'Atualizar' : 'Salvar' ?></button>
     </form>
