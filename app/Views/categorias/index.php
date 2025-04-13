@@ -3,7 +3,13 @@
 
 <div class="container mt-5">
     <h2>Categorias</h2>
-
+    <?php if (session()->getFlashdata('errors')): ?>
+        <div class="alert alert-danger">
+            <?php foreach (session()->getFlashdata('errors') as $error): ?>
+                <?= $error ?><br>
+            <?php endforeach ?>
+        </div>
+    <?php endif; ?>
     <form method="get" class="d-flex mb-3">
         <?= csrf_field() ?>
         <input type="text" name="search" class="form-control me-2" placeholder="Buscar categoria..." value="<?= esc($search) ?>">

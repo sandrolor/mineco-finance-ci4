@@ -71,6 +71,12 @@ class Categorias extends BaseController
             return redirect()->to('categorias')->with('error', 'Categoria não encontrada ou acesso negado.');
         }
 
+        if (($categoria['nomecategoria']) === 'Transferência') {
+            return redirect()->back()
+                ->with('errors', ['nomecategoria' => 'Registro não permite esta função.'])
+                ->withInput();
+        }
+
         $data = [
             'categoria' => $categoria,
             'grupos' => $this->categoriasModel->getAllGroups(),
@@ -112,9 +118,13 @@ class Categorias extends BaseController
         $categoria = $this->categoriasModel->where('id', $id)
             ->where('user_id', session()->get('user_id'))
             ->first();
-
         if (!$categoria) {
             return redirect()->to('categorias')->with('error', 'Categoria não encontrada ou acesso negado.');
+        }
+        if (($categoria['nomecategoria']) === 'Transferência') {
+            return redirect()->back()
+                ->with('errors', ['nomecategoria' => 'Registro não permite esta função.'])
+                ->withInput();
         }
         $this->categoriasModel->delete($id);
         return redirect()->to('categorias')->with('success', 'Categoria excluída com sucesso!');
