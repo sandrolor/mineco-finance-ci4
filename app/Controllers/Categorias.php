@@ -37,10 +37,27 @@ class Categorias extends BaseController
 
     public function store()
     {
+        // Obtém os dados do formulário
+        $data = $this->request->getPost();
+        $data['user_id'] = session()->get('user_id'); // Adiciona o user_id à lista de dados
+
+        // Verifica se já existe um grupo com o mesmo nome para o mesmo user_id
+        $existingGroup = $this->categoriasModel
+            ->where('nomecategoria', $data['nomecategoria'])
+            ->where('user_id', $data['user_id'])
+            ->first();
+
+        if ($existingGroup) {
+            return redirect()->back()
+                ->with('errors', ['nomecategoria' => 'O nome da categoria já está em uso.'])
+                ->withInput();
+        }
+
+        // Salva os dados no banco de dados
         $post = $this->request->getPost();
         $post['user_id'] = session()->get('user_id');
         $this->categoriasModel->save($post);
-        
+
         return redirect()->to('categorias')->with('success', 'Categoria adicionada com sucesso!');
     }
 
@@ -51,7 +68,7 @@ class Categorias extends BaseController
             ->first();
 
         if (!$categoria) {
-            return redirect()->to('contas')->with('error', 'Conta não encontrada ou acesso negado.');
+            return redirect()->to('categorias')->with('error', 'Categoria não encontrada ou acesso negado.');
         }
 
         $data = [
@@ -69,7 +86,22 @@ class Categorias extends BaseController
             ->first();
 
         if (!$categoria) {
-            return redirect()->to('contas')->with('error', 'Conta não encontrada ou acesso negado.');
+            return redirect()->to('categorias')->with('error', 'Categoria não encontrada ou acesso negado.');
+        }
+        // Obtém os dados do formulário
+        $data = $this->request->getPost();
+        $data['user_id'] = session()->get('user_id'); // Adiciona o user_id à lista de dados
+
+        // Verifica se já existe um grupo com o mesmo nome para o mesmo user_id
+        $existingGroup = $this->categoriasModel
+            ->where('nomecategoria', $data['nomecategoria'])
+            ->where('user_id', $data['user_id'])
+            ->first();
+
+        if ($existingGroup) {
+            return redirect()->back()
+                ->with('errors', ['nomecategoria' => 'O nome da categoria já está em uso.'])
+                ->withInput();
         }
         $this->categoriasModel->update($id, $this->request->getPost());
         return redirect()->to('categorias')->with('success', 'Categoria atualizada com sucesso!');
@@ -82,7 +114,7 @@ class Categorias extends BaseController
             ->first();
 
         if (!$categoria) {
-            return redirect()->to('contas')->with('error', 'Conta não encontrada ou acesso negado.');
+            return redirect()->to('categorias')->with('error', 'Categoria não encontrada ou acesso negado.');
         }
         $this->categoriasModel->delete($id);
         return redirect()->to('categorias')->with('success', 'Categoria excluída com sucesso!');
