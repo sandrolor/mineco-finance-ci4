@@ -85,6 +85,7 @@ class MovimentoModel extends Model
             ->select('contas.nomeconta AS nome_conta, SUM(movimento.valor) AS saldo')
             ->join('contas', 'contas.id = movimento.conta_id')
             ->where('movimento.user_id', session()->get('user_id')) // 👈 multiusuário
+            ->where('contas.nomeconta !=', 'Transferência') // 👈 Exclui a conta "Transferência"
             ->orderBy('contas.nomeconta', 'ASC') // Adicione esta linha
             ->groupBy('movimento.conta_id');
 

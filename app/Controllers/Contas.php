@@ -71,6 +71,12 @@ class Contas extends BaseController
             return redirect()->to('contas')->with('error', 'Conta não encontrada ou acesso negado.');
         }
 
+        if (($conta['nomeconta']) === 'Transferência') {
+            return redirect()->back()
+                ->with('errors', ['nomeconta' => 'Registro não permite esta função.'])
+                ->withInput();
+        }
+
         $data = [
             'conta' => $conta,
             'grupos' => $this->contasModel->getAllGroups(),
@@ -117,6 +123,12 @@ class Contas extends BaseController
 
         if (!$conta) {
             return redirect()->to('contas')->with('error', 'Conta não encontrada ou acesso negado.');
+        }
+
+        if (($conta['nomeconta']) === 'Transferência') {
+            return redirect()->back()
+                ->with('errors', ['nomeconta' => 'Registro não permite esta função.'])
+                ->withInput();
         }
 
         $this->contasModel->delete($id);
