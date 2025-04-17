@@ -22,24 +22,35 @@ class Movimento extends BaseController
     public function index()
     {
         $search = $this->request->getGet('search');
-        $query = $this->movimentoModel->getMovimento($search, session()->get('user_id'));
+        $startDate = $this->request->getGet('start_date');
+        $endDate = $this->request->getGet('end_date');
 
-        $perPage = 10;
-        $currentPage = (int)($this->request->getGet('page') ?? 1);
-        $offset = ($currentPage - 1) * $perPage;
+        // Define o período padrão como o mês atual, se não houver filtros de data
+        if (empty($startDate) && empty($endDate)) {
+            $startDate = date('Y-m-01'); // Primeiro dia do mês atual
+            $endDate = date('Y-m-t');   // Último dia do mês atual
+        }
 
-        $movimentos = $query->orderBy('data_mov', 'DESC')
-            ->limit($perPage, $offset)
-            ->get()
-            ->getResultArray();
+        // Calcula o saldo anterior acumulado até o início do período
+        $saldoAnterior = $this->movimentoModel->where('user_id', session()->get('user_id'))
+            ->where('data_mov <', $startDate)
+            ->selectSum('valor')
+            ->first()['valor'] ?? 0;
 
+        // Busca os movimentos dentro do período especificado
+        $query = $this->movimentoModel->getMovimento($search, session()->get('user_id'))
+            ->where('data_mov >=', $startDate)
+            ->where('data_mov <=', $endDate);
+
+        $movimentos = $query->orderBy('data_mov', 'DESC')->get()->getResultArray();
         $total = $query->countAllResults(false);
 
         return view('movimento/index', [
             'movimentos' => $movimentos,
             'total' => $total,
-            'currentPage' => $currentPage,
-            'perPage' => $perPage,
+            'saldo_anterior' => $saldoAnterior,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
             'search' => $search
         ]);
     }
@@ -103,7 +114,7 @@ class Movimento extends BaseController
                 ->orderBy('nomecategoria', 'ASC')
                 ->findAll(),
         ];
-        
+
         if (($data['movimento']['tipo'] ?? null) === null) {
             return redirect()->back()
                 ->with('errors', ['tipo' => 'Utilize a rotina de Transferência.'])

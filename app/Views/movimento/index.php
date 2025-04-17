@@ -27,60 +27,28 @@
 
     <!-- Tabela de Movimentos -->
     <?php if (!empty($movimentos)): ?>
+        <div class="text-start fw-bold mb-3">
+            Saldo anterior: R$ <?= number_format($saldo_anterior, 2, ',', '.') ?>
+        </div>
         <?php
-        $dataAtual = '';
-        $saldoDia = 0;
+        $saldoAtual = $saldo_anterior;
+        foreach ($movimentos as $movimento):
+            $saldoAtual += $movimento['valor'];
         ?>
-        <div class="table-responsive">
-            <?php foreach ($movimentos as $movimento): ?>
-                <?php
-                // Agrupamento por data
-                if ($dataAtual !== $movimento['data_mov']):
-                    if ($dataAtual !== ''): ?>
-                        <!-- Exibir saldo diário -->
-                        <div class="text-end fw-bold mt-2">
-                            Saldo do dia: R$ <?= number_format($saldoDia, 2, ',', '.') ?>
-                        </div>
-                    <?php endif;
-                    $dataAtual = $movimento['data_mov'];
-                    $saldoDia = 0; // Resetar o saldo do dia
-                    ?>
-                    <h5 class="bg-light p-2 text-primary">
-                        <?= date('d/m/Y', strtotime($dataAtual)) ?>
-                    </h5>
-                <?php endif; ?>
-
-                <?php
-                // Atualizar saldo do dia
-                $saldoDia += $movimento['valor'];
-
-                // Definir cor para o valor
-                $valorClass = $movimento['valor'] > 0 ? 'text-success' : ($movimento['valor'] < 0 ? 'text-danger' : 'text-warning');
-                ?>
-
-                <!-- Linha do movimento -->
-                <div class="d-flex justify-content-between align-items-center border-bottom py-2">
-                    <div>
-                        <div class="fw-bold"><?= esc($movimento['historico']) ?></div>
-                        <div class="text-muted">
-                            <?= esc($movimento['nome_conta']) ?> - <?= esc($movimento['nome_categoria']) ?>
-                            <a href="<?= site_url('movimento/edit/' . $movimento['id']) ?>" class="btn btn-warning btn-sm">Editar</a>
-                            <a href="<?= site_url('movimento/delete/' . $movimento['id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</a>
-                        </div>
-                    </div>
-                    <div class="fw-bold <?= $valorClass ?>">
-                        <?= number_format($movimento['valor'], 2, ',', '.') ?>
+            <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                <div>
+                    <div class="fw-bold"><?= esc($movimento['historico']) ?></div>
+                    <div class="text-muted">
+                        <?= esc($movimento['nome_conta']) ?> - <?= esc($movimento['nome_categoria']) ?>
                     </div>
                 </div>
-            <?php endforeach; ?>
-
-            <!-- Saldo final do último dia -->
-            <div class="text-end fw-bold mt-2">
-                Saldo do dia: R$ <?= number_format($saldoDia, 2, ',', '.') ?>
+                <div class="fw-bold <?= $movimento['valor'] > 0 ? 'text-success' : 'text-danger' ?>">
+                    <?= number_format($movimento['valor'], 2, ',', '.') ?>
+                </div>
             </div>
-            <div class="text-end fw-bold mt-2">
-                Total: R$ <strong><?= number_format(array_sum(array_column($movimentos, 'valor')), 2, ',', '.') ?></strong>
-            </div>
+        <?php endforeach; ?>
+        <div class="text-end fw-bold mt-3">
+            Saldo atual: R$ <?= number_format($saldoAtual, 2, ',', '.') ?>
         </div>
     <?php else: ?>
         <div class="alert alert-info">
@@ -97,24 +65,6 @@
         </tr>
     </tfoot>
     </table>
-
-    <div class="d-flex justify-content-between">
-        <p>Total de registros: <?= $total ?></p>
-        <nav>
-            <ul class="pagination">
-                <?php if ($currentPage > 1): ?>
-                    <li class="page-item">
-                        <a class="page-link" href="?page=<?= $currentPage - 1 ?>&search=<?= esc($search) ?>">Anterior</a>
-                    </li>
-                <?php endif; ?>
-                <?php if ($currentPage * $perPage < $total): ?>
-                    <li class="page-item">
-                        <a class="page-link" href="?page=<?= $currentPage + 1 ?>&search=<?= esc($search) ?>">Próxima</a>
-                    </li>
-                <?php endif; ?>
-            </ul>
-        </nav>
-    </div>
 </div>
 
 <?= $this->endSection() ?>
