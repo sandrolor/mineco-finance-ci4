@@ -82,11 +82,11 @@ class MovimentoModel extends Model
     public function getSaldoContas($startDate = null, $endDate = null)
     {
         $builder = $this->db->table('movimento')
-            ->select('contas.nomeconta AS nome_conta, SUM(movimento.valor) AS saldo')
+            ->select('contas.id AS conta_id, contas.nomeconta AS nome_conta, SUM(movimento.valor) AS saldo')
             ->join('contas', 'contas.id = movimento.conta_id')
-            ->where('movimento.user_id', session()->get('user_id')) // 👈 multiusuário
+            ->where('movimento.user_id', session()->get('user_id')) // 👈 filtro multiusuário
             ->where('contas.nomeconta !=', 'Transferência') // 👈 Exclui a conta "Transferência"
-            ->orderBy('contas.nomeconta', 'ASC') // Adicione esta linha
+            ->orderBy('contas.nomeconta', 'ASC')
             ->groupBy('movimento.conta_id');
 
         if ($startDate) {
@@ -97,6 +97,18 @@ class MovimentoModel extends Model
         }
 
         return $builder->get()->getResultArray();
+    }
+
+    public function getSaldoAnteriorContas($startDate)
+    {
+        return $this->db->table('movimento')
+            ->select('contas.id AS conta_id, SUM(movimento.valor) AS saldo_anterior')
+            ->join('contas', 'contas.id = movimento.conta_id')
+            ->where('movimento.data_mov <', $startDate)
+            ->where('movimento.user_id', session()->get('user_id'))
+            ->groupBy('movimento.conta_id')
+            ->get()
+            ->getResultArray();
     }
 
     public function getResultadoCategorias($startDate = null, $endDate = null)
@@ -111,14 +123,14 @@ class MovimentoModel extends Model
             ->where('categorias.nomecategoria !=', 'Transferência') // 👈 Exclui a categoria "Transferência"
             ->orderBy('categorias.nomecategoria', 'ASC')
             ->groupBy('movimento.categoria_id');
-    
+
         if ($startDate) {
             $builder->where('movimento.data_mov >=', $startDate);
         }
         if ($endDate) {
             $builder->where('movimento.data_mov <=', $endDate);
         }
-    
+
         return $builder->get()->getResultArray();
     }
 

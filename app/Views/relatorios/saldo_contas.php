@@ -1,6 +1,5 @@
 <?= $this->extend('layout') ?>
 <?= $this->section('content') ?>
-
 <div class="container mt-5">
     <h2>Relatório de Saldo das Contas</h2>
 
@@ -25,30 +24,33 @@
         <thead>
             <tr>
                 <th>Conta</th>
-                <th>Saldo (R$)</th>
+                <th>Saldo Anterior (R$)</th>
+                <th>Movimento (R$)</th>
+                <th>Saldo Atual (R$)</th>
             </tr>
         </thead>
         <tbody>
             <?php if (!empty($saldos)): ?>
-
                 <?php foreach ($saldos as $saldo): ?>
                     <tr>
-
                         <td><?= esc($saldo['nome_conta']) ?></td>
+                        <td><?= number_format($saldo['saldo_anterior'], 2, ',', '.') ?></td>
                         <td><?= number_format($saldo['saldo'], 2, ',', '.') ?></td>
+                        <td><?= number_format($saldo['saldo_atual'], 2, ',', '.') ?></td>
                     </tr>
                 <?php endforeach; ?>
             <?php else: ?>
                 <tr>
-                    <td colspan="2">Nenhum registro encontrado no período selecionado.</td>
+                    <td colspan="4">Nenhum registro encontrado no período selecionado.</td>
                 </tr>
-            <?php endif; ?>            
+            <?php endif; ?>
             <tr class="table-primary">
                 <td><strong>Total</strong></td>
+                <td><strong><?= number_format(array_sum(array_column($saldos, 'saldo_anterior')), 2, ',', '.') ?></strong></td>
                 <td><strong><?= number_format(array_sum(array_column($saldos, 'saldo')), 2, ',', '.') ?></strong></td>
+                <td><strong><?= number_format(array_sum(array_column($saldos, 'saldo_atual')), 2, ',', '.') ?></strong></td>
             </tr>
         </tbody>
     </table>
 </div>
-
 <?= $this->endSection() ?>
