@@ -25,24 +25,56 @@ class Relatorios extends BaseController
             $endDate = date('Y-m-t');   // Último dia do mês atual
         }
 
-        // Obter saldos atuais
-        $saldosAtuais = $this->movimentoModel->getSaldoContas($startDate, $endDate);
+        // Obter saldos atuais com grupos
+        $saldosAtuais = $this->movimentoModel->getSaldoContasComGrupos($startDate, $endDate);
 
-        // Obter saldos anteriores
-        $saldosAnteriores = $this->movimentoModel->getSaldoAnteriorContas($startDate);
+        // Obter saldos anteriores por conta
+        $saldosAnteriores = $this->movimentoModel->getSaldoAnteriorPorConta($startDate);
         $saldosAnterioresMap = [];
         foreach ($saldosAnteriores as $saldo) {
             $saldosAnterioresMap[$saldo['conta_id']] = $saldo['saldo_anterior'] ?? 0;
         }
 
-        // Combinar saldos atuais e anteriores
-        foreach ($saldosAtuais as &$saldo) {
+        // Organizar os dados por grupo
+        $dadosOrganizados = [];
+        foreach ($saldosAtuais as $saldo) {
+            $grupo = $saldo['nome_grupo'];
+            $conta = $saldo['nome_conta'];
             $contaId = $saldo['conta_id'];
-            $saldo['saldo_anterior'] = $saldosAnterioresMap[$contaId] ?? 0;
-            $saldo['saldo_atual'] = ($saldo['saldo_anterior'] ?? 0) + ($saldo['saldo'] ?? 0); // Calcula o Saldo Atual
+            $saldoAtual = $saldo['saldo'];
+
+            // Adicionar subtotal ao grupo
+            if (!isset($dadosOrganizados[$grupo])) {
+                $dadosOrganizados[$grupo] = [
+                    'subtotais' => ['saldo_anterior' => 0, 'movimento' => 0, 'saldo_atual' => 0],
+                    'contas' => [],
+                ];
+            }
+
+            // Adicionar conta ao grupo
+            $dadosOrganizados[$grupo]['contas'][] = [
+                'nome_conta' => $conta,
+                'saldo_anterior' => $saldosAnterioresMap[$contaId] ?? 0,
+                'movimento' => $saldoAtual,
+                'saldo_atual' => ($saldosAnterioresMap[$contaId] ?? 0) + $saldoAtual,
+            ];
+
+            // Atualizar subtotais do grupo
+            $dadosOrganizados[$grupo]['subtotais']['saldo_anterior'] += $saldosAnterioresMap[$contaId] ?? 0;
+            $dadosOrganizados[$grupo]['subtotais']['movimento'] += $saldoAtual;
+            $dadosOrganizados[$grupo]['subtotais']['saldo_atual'] += ($saldosAnterioresMap[$contaId] ?? 0) + $saldoAtual;
         }
 
-        $data['saldos'] = $saldosAtuais;
+        // Calcular totais gerais
+        $totalGeral = ['saldo_anterior' => 0, 'movimento' => 0, 'saldo_atual' => 0];
+        foreach ($dadosOrganizados as $grupo) {
+            $totalGeral['saldo_anterior'] += $grupo['subtotais']['saldo_anterior'];
+            $totalGeral['movimento'] += $grupo['subtotais']['movimento'];
+            $totalGeral['saldo_atual'] += $grupo['subtotais']['saldo_atual'];
+        }
+
+        $data['dados_organizados'] = $dadosOrganizados;
+        $data['total_geral'] = $totalGeral;
         $data['startDate'] = $startDate;
         $data['endDate'] = $endDate;
 

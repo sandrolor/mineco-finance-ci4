@@ -111,6 +111,52 @@ class MovimentoModel extends Model
             ->getResultArray();
     }
 
+    public function getSaldoContasComGrupos($startDate = null, $endDate = null)
+    {
+        $builder = $this->db->table('movimento')
+            ->select('grupos_contas.nomegrupo AS nome_grupo, contas.nomeconta AS nome_conta, contas.id AS conta_id, SUM(movimento.valor) AS saldo')
+            ->join('contas', 'contas.id = movimento.conta_id')
+            ->join('grupos_contas', 'grupos_contas.id = contas.grupo_id', 'left') // Relacionamento com grupos_contas
+            ->where('movimento.user_id', session()->get('user_id'))
+            ->where('contas.nomeconta !=', 'Transferência') // Exclui a conta "Transferência"
+            ->orderBy('grupos_contas.nomegrupo', 'ASC') // Ordena por grupo
+            ->orderBy('contas.nomeconta', 'ASC') // Ordena por conta dentro do grupo
+            ->groupBy(['grupos_contas.id', 'contas.id']);
+
+        if ($startDate) {
+            $builder->where('movimento.data_mov >=', $startDate);
+        }
+        if ($endDate) {
+            $builder->where('movimento.data_mov <=', $endDate);
+        }
+
+        return $builder->get()->getResultArray();
+    }
+
+    public function getSaldoAnteriorGrupos($startDate)
+    {
+        return $this->db->table('movimento')
+            ->select('grupos_contas.nomegrupo AS nome_grupo, SUM(movimento.valor) AS saldo_anterior')
+            ->join('contas', 'contas.id = movimento.conta_id')
+            ->join('grupos_contas', 'grupos_contas.id = contas.grupo_id', 'left') // Relacionamento com grupos_contas
+            ->where('movimento.data_mov <', $startDate)
+            ->where('movimento.user_id', session()->get('user_id'))
+            ->groupBy('grupos_contas.id')
+            ->get()
+            ->getResultArray();
+    }
+
+    public function getSaldoAnteriorPorConta($startDate)
+    {
+        return $this->db->table('movimento')
+            ->select('conta_id, SUM(valor) AS saldo_anterior')
+            ->where('data_mov <', $startDate)
+            ->where('user_id', session()->get('user_id'))
+            ->groupBy('conta_id')
+            ->get()
+            ->getResultArray();
+    }
+
     public function getResultadoCategorias($startDate = null, $endDate = null)
     {
         $builder = $this->db->table('movimento')

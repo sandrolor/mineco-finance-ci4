@@ -30,25 +30,30 @@
             </tr>
         </thead>
         <tbody>
-            <?php if (!empty($saldos)): ?>
-                <?php foreach ($saldos as $saldo): ?>
+            <?php foreach ($dados_organizados as $grupo => $dados): ?>
+                <!-- Subtotal do Grupo -->
+                <tr class="table-secondary">
+                    <td><strong><?= esc($grupo) ?></strong></td>
+                    <td><strong><?= number_format($dados['subtotais']['saldo_anterior'], 2, ',', '.') ?></strong></td>
+                    <td><strong><?= number_format($dados['subtotais']['movimento'], 2, ',', '.') ?></strong></td>
+                    <td><strong><?= number_format($dados['subtotais']['saldo_atual'], 2, ',', '.') ?></strong></td>
+                </tr>
+                <!-- Contas do Grupo -->
+                <?php foreach ($dados['contas'] as $conta): ?>
                     <tr>
-                        <td><?= esc($saldo['nome_conta']) ?></td>
-                        <td><?= number_format($saldo['saldo_anterior'], 2, ',', '.') ?></td>
-                        <td><?= number_format($saldo['saldo'], 2, ',', '.') ?></td>
-                        <td><?= number_format($saldo['saldo_atual'], 2, ',', '.') ?></td>
+                        <td><?= esc($conta['nome_conta']) ?></td>
+                        <td><?= number_format($conta['saldo_anterior'], 2, ',', '.') ?></td>
+                        <td><?= number_format($conta['movimento'], 2, ',', '.') ?></td>
+                        <td><?= number_format($conta['saldo_atual'], 2, ',', '.') ?></td>
                     </tr>
                 <?php endforeach; ?>
-            <?php else: ?>
-                <tr>
-                    <td colspan="4">Nenhum registro encontrado no período selecionado.</td>
-                </tr>
-            <?php endif; ?>
+            <?php endforeach; ?>
+            <!-- Total Geral -->
             <tr class="table-primary">
-                <td><strong>Total</strong></td>
-                <td><strong><?= number_format(array_sum(array_column($saldos, 'saldo_anterior')), 2, ',', '.') ?></strong></td>
-                <td><strong><?= number_format(array_sum(array_column($saldos, 'saldo')), 2, ',', '.') ?></strong></td>
-                <td><strong><?= number_format(array_sum(array_column($saldos, 'saldo_atual')), 2, ',', '.') ?></strong></td>
+                <td><strong>Total Geral</strong></td>
+                <td><strong><?= number_format($total_geral['saldo_anterior'], 2, ',', '.') ?></strong></td>
+                <td><strong><?= number_format($total_geral['movimento'], 2, ',', '.') ?></strong></td>
+                <td><strong><?= number_format($total_geral['saldo_atual'], 2, ',', '.') ?></strong></td>
             </tr>
         </tbody>
     </table>
