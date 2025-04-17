@@ -182,8 +182,8 @@ class Movimento extends BaseController
         if (!$movimento) {
             return redirect()->to('/movimento')->with('error', 'Movimento não encontrado ou acesso negado.');
         }
-
-        if (($data['movimento']['tipo'] ?? null) === null) {
+        
+        if (($movimento['tipo'] ?? null) === null) {
             return redirect()->back()
                 ->with('errors', ['tipo' => 'Utilize a rotina de Transferência.'])
                 ->withInput();
