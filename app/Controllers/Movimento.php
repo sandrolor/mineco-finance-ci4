@@ -24,6 +24,8 @@ class Movimento extends BaseController
         $search = $this->request->getGet('search');
         $startDate = $this->request->getGet('start_date');
         $endDate = $this->request->getGet('end_date');
+        $contaId = $this->request->getGet('conta_id');
+        $categoriaId = $this->request->getGet('categoria_id');
 
         // Define o período padrão como o mês atual, se não houver filtros de data
         if (empty($startDate) && empty($endDate)) {
@@ -42,17 +44,30 @@ class Movimento extends BaseController
             ->where('data_mov >=', $startDate)
             ->where('data_mov <=', $endDate);
 
+        // Aplica filtros adicionais
+        if (!empty($contaId)) {
+            $query->where('conta_id', $contaId);
+        }
+        if (!empty($categoriaId)) {
+            $query->where('categoria_id', $categoriaId);
+        }
+
         $movimentos = $query->orderBy('data_mov', 'DESC')->get()->getResultArray();
         $total = $query->countAllResults(false);
 
-        return view('movimento/index', [
+        // Carrega dados das contas e categorias para os selects dinâmicos
+        $data = [
             'movimentos' => $movimentos,
             'total' => $total,
             'saldo_anterior' => $saldoAnterior,
             'start_date' => $startDate,
             'end_date' => $endDate,
-            'search' => $search
-        ]);
+            'search' => $search,
+            'contas' => $this->contaModel->where('user_id', session()->get('user_id'))->orderBy('nomeconta', 'ASC')->findAll(),
+            'categorias' => $this->categoriaModel->where('user_id', session()->get('user_id'))->orderBy('nomecategoria', 'ASC')->findAll(),
+        ];
+
+        return view('movimento/index', $data);
     }
 
     public function create()

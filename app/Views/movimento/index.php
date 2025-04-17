@@ -19,6 +19,44 @@
         </div>
     </form>
 
+    <form method="get" class="mb-3">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label for="start_date" class="form-label">Data Inicial</label>
+                <input type="date" id="start_date" name="start_date" class="form-control" value="<?= esc($start_date) ?>">
+            </div>
+            <div class="col-md-3">
+                <label for="end_date" class="form-label">Data Final</label>
+                <input type="date" id="end_date" name="end_date" class="form-control" value="<?= esc($end_date) ?>">
+            </div>
+            <div class="col-md-3">
+                <label for="conta_id" class="form-label">Conta</label>
+                <select id="conta_id" name="conta_id" class="form-control">
+                    <option value="">Todas</option>
+                    <?php foreach ($contas as $conta): ?>
+                        <option value="<?= $conta['id'] ?>" <?= isset($_GET['conta_id']) && $_GET['conta_id'] == $conta['id'] ? 'selected' : '' ?>>
+                            <?= esc($conta['nomeconta']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="categoria_id" class="form-label">Categoria</label>
+                <select id="categoria_id" name="categoria_id" class="form-control">
+                    <option value="">Todas</option>
+                    <?php foreach ($categorias as $categoria): ?>
+                        <option value="<?= $categoria['id'] ?>" <?= isset($_GET['categoria_id']) && $_GET['categoria_id'] == $categoria['id'] ? 'selected' : '' ?>>
+                            <?= esc($categoria['nomecategoria']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+            </div>
+        </div>
+    </form>
+
     <a href="<?= site_url('movimento/create') ?>" class="btn btn-success mb-3">Novo Movimento</a>
 
     <?php if (session()->getFlashdata('success')): ?>
