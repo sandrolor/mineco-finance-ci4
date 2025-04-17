@@ -52,7 +52,7 @@ class Movimento extends BaseController
             $query->where('categoria_id', $categoriaId);
         }
 
-        $movimentos = $query->orderBy('data_mov', 'DESC')->get()->getResultArray();
+        $movimentos = $query->orderBy('data_mov', 'ASC')->get()->getResultArray();
         $total = $query->countAllResults(false);
 
         // Carrega dados das contas e categorias para os selects dinâmicos

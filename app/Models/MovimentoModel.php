@@ -37,7 +37,7 @@ class MovimentoModel extends Model
                 ->orLike('categorias.nomecategoria', $search);
         }
 
-        $builder->orderBy('data_mov', 'DESC');
+        $builder->orderBy('data_mov', 'ASC');
         return $builder;
     }
 
