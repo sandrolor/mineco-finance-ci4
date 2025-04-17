@@ -33,11 +33,19 @@ class Movimento extends BaseController
             $endDate = date('Y-m-t');   // Último dia do mês atual
         }
 
-        // Calcula o saldo anterior acumulado até o início do período
-        $saldoAnterior = $this->movimentoModel->where('user_id', session()->get('user_id'))
-            ->where('data_mov <', $startDate)
-            ->selectSum('valor')
-            ->first()['valor'] ?? 0;
+        // Calcula o saldo anterior acumulado até o início do período, considerando os filtros
+        $saldoAnteriorQuery = $this->movimentoModel->where('user_id', session()->get('user_id'))
+            ->where('data_mov <', $startDate);
+
+        // Aplica os mesmos filtros usados na consulta principal
+        if (!empty($contaId)) {
+            $saldoAnteriorQuery->where('conta_id', $contaId);
+        }
+        if (!empty($categoriaId)) {
+            $saldoAnteriorQuery->where('categoria_id', $categoriaId);
+        }
+
+        $saldoAnterior = $saldoAnteriorQuery->selectSum('valor')->first()['valor'] ?? 0;
 
         // Busca os movimentos dentro do período especificado
         $query = $this->movimentoModel->getMovimento($search, session()->get('user_id'))
@@ -182,7 +190,7 @@ class Movimento extends BaseController
         if (!$movimento) {
             return redirect()->to('/movimento')->with('error', 'Movimento não encontrado ou acesso negado.');
         }
-        
+
         if (($movimento['tipo'] ?? null) === null) {
             return redirect()->back()
                 ->with('errors', ['tipo' => 'Utilize a rotina de Transferência.'])
