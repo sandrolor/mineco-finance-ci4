@@ -3,6 +3,9 @@
 
 <div class="container mt-5">
     <h2>Movimentos</h2>
+    <?php if (session()->getFlashdata('success')): ?>
+        <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
+    <?php endif; ?>
     <?php if (session()->getFlashdata('errors')): ?>
         <div class="alert alert-danger">
             <?php foreach (session()->getFlashdata('errors') as $error): ?>
@@ -11,25 +14,28 @@
         </div>
     <?php endif; ?>
     <!-- Formulário de busca -->
-    <form method="get" action="<?= site_url('movimento') ?>" class="mb-4">
-        <?= csrf_field() ?>
-        <div class="input-group">
-            <input type="text" name="search" value="<?= esc($search) ?>" class="form-control" placeholder="Buscar por histórico ou categoria...">
-            <button type="submit" class="btn btn-primary">Buscar</button>
-        </div>
-    </form>
-
     <form method="get" class="mb-3">
         <div class="row g-2 align-items-end">
+            <!-- Campo de Busca -->
             <div class="col-md-3">
+                <label for="search" class="form-label">Histórico</label>
+                <input type="text" id="search" name="search" value="<?= esc($search) ?>" class="form-control" placeholder="Ex: Salário...">
+            </div>
+
+            <!-- Filtro de Data Inicial -->
+            <div class="col-md-2">
                 <label for="start_date" class="form-label">Data Inicial</label>
                 <input type="date" id="start_date" name="start_date" class="form-control" value="<?= esc($start_date) ?>">
             </div>
-            <div class="col-md-3">
+
+            <!-- Filtro de Data Final -->
+            <div class="col-md-2">
                 <label for="end_date" class="form-label">Data Final</label>
                 <input type="date" id="end_date" name="end_date" class="form-control" value="<?= esc($end_date) ?>">
             </div>
-            <div class="col-md-3">
+
+            <!-- Filtro de Conta -->
+            <div class="col-md-2">
                 <label for="conta_id" class="form-label">Conta</label>
                 <select id="conta_id" name="conta_id" class="form-control">
                     <option value="">Todas</option>
@@ -40,6 +46,8 @@
                     <?php endforeach; ?>
                 </select>
             </div>
+
+            <!-- Filtro de Categoria -->
             <div class="col-md-2">
                 <label for="categoria_id" class="form-label">Categoria</label>
                 <select id="categoria_id" name="categoria_id" class="form-control">
@@ -51,17 +59,14 @@
                     <?php endforeach; ?>
                 </select>
             </div>
-            <div class="col-md-1 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+
+            <!-- Botões [B] e [A] -->
+            <div class="col-md-1 d-flex flex-column justify-content-end gap-2">
+                <button type="submit" class="btn btn-primary w-100">B</button>
+                <a href="<?= site_url('movimento/create') ?>" class="btn btn-success w-100">A</a>
             </div>
         </div>
     </form>
-
-    <a href="<?= site_url('movimento/create') ?>" class="btn btn-success mb-3">Novo Movimento</a>
-
-    <?php if (session()->getFlashdata('success')): ?>
-        <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
-    <?php endif; ?>
 
     <!-- Tabela de Movimentos -->
     <?php if (!empty($movimentos)): ?>
