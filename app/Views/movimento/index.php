@@ -76,19 +76,17 @@
         <div class="table-responsive">
             <?php
             $dataAtual = '';
-            $saldoDia = 0;
-            $saldoAtual = $saldo_anterior;
+            $saldo_atual = $saldo_anterior;
             foreach ($movimentos as $movimento):
                 // Agrupamento por data
                 if ($dataAtual !== $movimento['data_mov']):
                     if ($dataAtual !== ''): ?>
                         <!-- Exibir saldo diário -->
                         <div class="text-end fw-bold mt-2">
-                            Saldo do dia: R$ <?= number_format($saldoDia, 2, ',', '.') ?>
+                            Saldo do dia: R$ <?= number_format($saldo_atual, 2, ',', '.') ?>
                         </div>
                     <?php endif;
                     $dataAtual = $movimento['data_mov'];
-                    $saldoDia = 0; // Resetar o saldo do dia
                     ?>
                     <h5 class="bg-light p-2 text-primary">
                         <?= date('d/m/Y', strtotime($dataAtual)) ?>
@@ -96,8 +94,7 @@
                 <?php endif;
 
                 // Atualizar saldo do dia
-                $saldoDia += $movimento['valor'];
-                $saldoDia += $saldoAtual;
+                $saldo_atual += $movimento['valor'];
                 // Definir cor para o valor
                 $valorClass = $movimento['valor'] > 0 ? 'text-success' : ($movimento['valor'] < 0 ? 'text-danger' : 'text-warning');
                 ?>
@@ -126,7 +123,7 @@
 
             <!-- Saldo final do último dia -->
             <div class="text-end fw-bold mt-2">
-                Saldo do dia: R$ <?= number_format($saldoDia, 2, ',', '.') ?>
+                Saldo do Atual: R$ <?= number_format($saldo_atual, 2, ',', '.') ?>
             </div>
         </div>
     <?php else: ?>
