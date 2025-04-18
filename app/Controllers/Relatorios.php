@@ -93,7 +93,50 @@ class Relatorios extends BaseController
             $endDate = date('Y-m-t');   // Último dia do mês atual
         }
 
-        $data['resultados'] = $this->movimentoModel->getResultadoCategorias($startDate, $endDate);
+        // Obter resultados com grupos
+        $resultadosAtuais = $this->movimentoModel->getResultadoCategoriasComGrupos($startDate, $endDate);
+
+        // Organizar os dados por grupo
+        $dadosOrganizados = [];
+        foreach ($resultadosAtuais as $resultado) {
+            $grupo = $resultado['nome_grupo'];
+            $categoria = $resultado['nome_categoria'];
+            $receitas = $resultado['receitas'];
+            $despesas = $resultado['despesas'];
+            $saldo = $resultado['saldo'];
+
+            // Adicionar subtotal ao grupo
+            if (!isset($dadosOrganizados[$grupo])) {
+                $dadosOrganizados[$grupo] = [
+                    'subtotais' => ['receitas' => 0, 'despesas' => 0, 'saldo' => 0],
+                    'categorias' => [],
+                ];
+            }
+
+            // Adicionar categoria ao grupo
+            $dadosOrganizados[$grupo]['categorias'][] = [
+                'nome_categoria' => $categoria,
+                'receitas' => $receitas,
+                'despesas' => $despesas,
+                'saldo' => $saldo,
+            ];
+
+            // Atualizar subtotais do grupo
+            $dadosOrganizados[$grupo]['subtotais']['receitas'] += $receitas;
+            $dadosOrganizados[$grupo]['subtotais']['despesas'] += $despesas;
+            $dadosOrganizados[$grupo]['subtotais']['saldo'] += $saldo;
+        }
+
+        // Calcular totais gerais
+        $totalGeral = ['receitas' => 0, 'despesas' => 0, 'saldo' => 0];
+        foreach ($dadosOrganizados as $grupo) {
+            $totalGeral['receitas'] += $grupo['subtotais']['receitas'];
+            $totalGeral['despesas'] += $grupo['subtotais']['despesas'];
+            $totalGeral['saldo'] += $grupo['subtotais']['saldo'];
+        }
+
+        $data['dados_organizados'] = $dadosOrganizados;
+        $data['total_geral'] = $totalGeral;
         $data['startDate'] = $startDate;
         $data['endDate'] = $endDate;
 

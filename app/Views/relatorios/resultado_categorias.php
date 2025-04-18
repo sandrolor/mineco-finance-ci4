@@ -27,31 +27,36 @@
                 <th>Categoria</th>
                 <th>Receitas (R$)</th>
                 <th>Despesas (R$)</th>
-                <th>Saldo (R$)</th>
+                <th>Resultado (R$)</th>
             </tr>
         </thead>
         <tbody>
-            <?php if (!empty($resultados)): ?>
-                <?php foreach ($resultados as $resultado): ?>
+            <?php foreach ($dados_organizados as $grupo => $dados): ?>
+                <!-- Subtotal do Grupo -->
+                <tr class="table-secondary">
+                    <td><strong><?= esc($grupo) ?></strong></td>
+                    <td><strong><?= number_format($dados['subtotais']['receitas'], 2, ',', '.') ?></strong></td>
+                    <td><strong><?= number_format($dados['subtotais']['despesas'], 2, ',', '.') ?></strong></td>
+                    <td><strong><?= number_format($dados['subtotais']['saldo'], 2, ',', '.') ?></strong></td>
+                </tr>
+                <!-- Categorias do Grupo -->
+                <?php foreach ($dados['categorias'] as $categoria): ?>
                     <tr>
-                        <td><?= esc($resultado['nome_categoria']) ?></td>
-                        <td><?= number_format($resultado['receitas'], 2, ',', '.') ?></td>
-                        <td><?= number_format($resultado['despesas'], 2, ',', '.') ?></td>
-                        <td><?= number_format($resultado['saldo'], 2, ',', '.') ?></td>
+                        <td><?= esc($categoria['nome_categoria']) ?></td>
+                        <td><?= number_format($categoria['receitas'], 2, ',', '.') ?></td>
+                        <td><?= number_format($categoria['despesas'], 2, ',', '.') ?></td>
+                        <td><?= number_format($categoria['saldo'], 2, ',', '.') ?></td>
                     </tr>
                 <?php endforeach; ?>
-            <?php else: ?>
-                <tr>
-                    <td colspan="4">Nenhum registro encontrado no período selecionado.</td>
-                </tr>
-            <?php endif; ?>
+            <?php endforeach; ?>
+            <!-- Total Geral -->
+            <tr class="table-primary">
+                <td><strong>Total Geral</strong></td>
+                <td><strong><?= number_format($total_geral['receitas'], 2, ',', '.') ?></strong></td>
+                <td><strong><?= number_format($total_geral['despesas'], 2, ',', '.') ?></strong></td>
+                <td><strong><?= number_format($total_geral['saldo'], 2, ',', '.') ?></strong></td>
+            </tr>
         </tbody>
-        <tr class="table-primary">
-            <td><strong>Total</strong></td>
-            <td><strong><?= number_format(array_sum(array_column($resultados, 'receitas')), 2, ',', '.') ?></strong></td>
-            <td><strong><?= number_format(array_sum(array_column($resultados, 'despesas')), 2, ',', '.') ?></strong></td>
-            <td><strong><?= number_format(array_sum(array_column($resultados, 'saldo')), 2, ',', '.') ?></strong></td>
-        </tr>
     </table>
 </div>
 

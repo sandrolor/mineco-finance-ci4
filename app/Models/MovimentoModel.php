@@ -157,6 +157,31 @@ class MovimentoModel extends Model
             ->getResultArray();
     }
 
+    public function getResultadoCategoriasComGrupos($startDate = null, $endDate = null)
+    {
+        $builder = $this->db->table('movimento')
+            ->select('grupos_categorias.nomegrupo AS nome_grupo, categorias.nomecategoria AS nome_categoria')
+            ->select('SUM(CASE WHEN movimento.valor > 0 THEN movimento.valor ELSE 0 END) AS receitas')
+            ->select('SUM(CASE WHEN movimento.valor < 0 THEN movimento.valor ELSE 0 END) AS despesas')
+            ->select('SUM(movimento.valor) AS saldo')
+            ->join('categorias', 'categorias.id = movimento.categoria_id')
+            ->join('grupos_categorias', 'grupos_categorias.id = categorias.grupo_id', 'left') // Relacionamento com grupos_categorias
+            ->where('movimento.user_id', session()->get('user_id'))
+            ->where('categorias.nomecategoria !=', 'Transferência') // Exclui a categoria "Transferência"
+            ->orderBy('grupos_categorias.nomegrupo', 'ASC') // Ordena por grupo
+            ->orderBy('categorias.nomecategoria', 'ASC') // Ordena por categoria dentro do grupo
+            ->groupBy(['grupos_categorias.id', 'categorias.id']);
+
+        if ($startDate) {
+            $builder->where('movimento.data_mov >=', $startDate);
+        }
+        if ($endDate) {
+            $builder->where('movimento.data_mov <=', $endDate);
+        }
+
+        return $builder->get()->getResultArray();
+    }
+
     public function getResultadoCategorias($startDate = null, $endDate = null)
     {
         $builder = $this->db->table('movimento')
