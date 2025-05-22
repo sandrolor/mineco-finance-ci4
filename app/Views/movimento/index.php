@@ -62,8 +62,8 @@
 
             <!-- Botões [B] e [A] -->
             <div class="col-md-1 d-flex flex-column justify-content-end gap-2">
-                <button type="submit" class="btn btn-primary w-100">B</button>
-                <a href="<?= site_url('movimento/create') ?>" class="btn btn-success w-100">A</a>
+                <button type="submit" class="btn btn-primary w-100">Buscar</button>
+                <a href="<?= site_url('movimento/create') ?>" class="btn btn-success w-100">Incluir</a>
             </div>
         </div>
     </form>
@@ -100,25 +100,30 @@
                 ?>
 
                 <!-- Linha do movimento -->
-                <div class="d-flex justify-content-between align-items-center border-bottom py-2">
-                    <div>
-                        <div class="fw-bold"><?= esc($movimento['historico']) ?></div>
-                        <div class="text-muted">
-                            <?= esc($movimento['nome_conta']) ?> - <?= esc($movimento['nome_categoria']) ?>
-                        </div>
+                <div class="row align-items-center border-bottom py-2">
+                    <!-- Coluna 1: Histórico -->
+                    <div class="col-md-6 fw-bold">
+                        <?= esc($movimento['historico']) ?>
                     </div>
-                    <div class="d-flex gap-2">
-                        <div class="fw-bold <?= $valorClass ?>">
-                            <?= number_format($movimento['valor'], 2, ',', '.') ?>
-                        </div>
-                        <!-- Botões de Ação -->
-                        <div>
-                            <a href="<?= site_url('movimento/edit/' . $movimento['id']) ?>" class="btn btn-warning btn-sm">Editar</a>
-                            <a href="<?= site_url('movimento/delete/' . $movimento['id']) ?>" class="btn btn-danger btn-sm"
-                                onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</a>
-                        </div>
+
+                    <!-- Coluna 2: Conta e Categoria -->
+                    <div class="col-md-4 text-muted">
+                        <?= esc($movimento['nome_conta']) ?> | <?= esc($movimento['nome_categoria']) ?>
+                    </div>
+
+                    <!-- Coluna 3: Valor (alinhado à direita com Flexbox) -->
+                    <div class="col-md-1 d-flex justify-content-end fw-bold <?= $valorClass ?>">
+                        <?= number_format($movimento['valor'], 2, ',', '.') ?>
+                    </div>
+
+                    <!-- Coluna 4: Botões de Ação -->
+                    <div class="col-md-1 text-end">
+                        <a href="<?= site_url('movimento/edit/' . $movimento['id']) ?>" class="btn btn-warning btn-sm me-2">A</a>
+                        <a href="<?= site_url('movimento/delete/' . $movimento['id']) ?>" class="btn btn-danger btn-sm"
+                            onclick="return confirm('Tem certeza que deseja excluir?')">E</a>
                     </div>
                 </div>
+
             <?php endforeach; ?>
 
             <!-- Saldo final do último dia -->
