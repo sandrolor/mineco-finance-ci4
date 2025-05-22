@@ -9,7 +9,7 @@
 
         <div class="mb-3">
             <label for="data_mov" class="form-label">Data</label>
-            <input type="date" id="data_mov" name="data_mov" class="form-control" value="<?= isset($movimento) ? esc($movimento['data_mov']) : '' ?>" required>
+            <input type="date" id="data_mov" name="data_mov" class="form-control" value="<?= isset($movimento) ? esc($movimento['data_mov']) : '' ?>" required autofocus>
         </div>
 
         <div class="mb-3">

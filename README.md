@@ -1,6 +1,6 @@
 # Mineco-Finance-CI4
 
-## Ao iniciar o uso
+## Ao iniciar o uso pela 1ª vez
 
 Cadastrar 1º Grupo de Contas com a Descrição: Transferência
 Cadastrar 2º Grupo de Contas com a Descrição: Transitória
