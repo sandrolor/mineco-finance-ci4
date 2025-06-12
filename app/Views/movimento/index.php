@@ -63,7 +63,7 @@
             <!-- Botões [B] e [A] -->
             <div class="col-md-1 d-flex flex-column justify-content-end gap-2">
                 <button type="submit" class="btn btn-primary w-100">Buscar</button>
-                <a href="<?= site_url('movimento/create') ?>" class="btn btn-success w-100">Incluir</a>
+                <a href="<?= site_url('movimento/create') ?>" class="btn btn-success w-100" autofocus>Incluir</a>
             </div>
         </div>
     </form>

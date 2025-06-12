@@ -21,7 +21,7 @@
     </form>
 
     <!-- Tabela de Resultados -->
-    <table class="table table-striped">
+    <table class="table table-hover">
         <thead>
             <tr>
                 <th>Categoria</th>
